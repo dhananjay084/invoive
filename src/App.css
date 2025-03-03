@@ -8,8 +8,30 @@
   display: flex;
   flex-direction: column;
   overflow: hidden; /* Ensures no extra space */
+  position: relative;
+}
+.invoice-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.1;
+    z-index: 0;
 }
 
+.invoice-content {
+    position: relative;
+    z-index: 1;
+}
+
+.header-logo{
+  width: 200px;
+  height: 200px;
+}
 .company-selection {
   margin-bottom: 15px;
 }
@@ -277,6 +299,10 @@ color: #02CBF0;
 .discliamer {
   margin-top: 40px;
   font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center ;
+  border-top: 1px solid #ccc;
 
 }
 .discliamer p{
@@ -294,4 +320,21 @@ color: #02CBF0;
 }
 .discliamer h4{
   color: #888;
+}
+.sign_div{
+  display: flex;
+  justify-content: end;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.sign_div p{
+  font-size: 15px;
+  font-size: bold;
+
+
+}
+.sign-logo{
+  max-width: 300px;
 }

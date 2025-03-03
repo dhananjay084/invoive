@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
+    invoiceNo:'',
     customerName: "",
     address1: "",
     address2: "",
@@ -10,7 +11,9 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     dueDate: "",
     clientGST: "",
     items: [],
-    taxRate: "", // Tax Rate Field Only
+    gstTax: "", 
+    igstTax:'',
+    cgstTax:''
   });
 
   const [newItem, setNewItem] = useState({
@@ -31,7 +34,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const addItem = () => {
-    if (!newItem.description || !newItem.validatorPayout || !newItem.hsnSac || !newItem.amount) {
+    if (!newItem.description || !newItem.validatorPayout  || !newItem.amount) {
       alert("Please fill all item fields before adding.");
       return;
     }
@@ -56,6 +59,8 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     <div className="modal">
       <div className="modal-content">
         <h2>Enter Invoice Details</h2>
+        <label>Invoive No:</label>
+        <input type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} />
 
         <label>Customer Name:</label>
         <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} />
@@ -66,7 +71,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <label>Address Line 2:</label>
         <input type="text" name="address2" value={formData.address2} onChange={handleChange} />
 
-        <label>Phone:</label>
+        <label>PiNcode:</label>
         <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
 
         <label>Invoice Date:</label>
@@ -85,8 +90,8 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <label>Validator Payout:</label>
         <input type="text" name="validatorPayout" value={newItem.validatorPayout} onChange={handleItemChange} />
 
-        <label>HSN/SAC:</label>
-        <input type="text" name="hsnSac" value={newItem.hsnSac} onChange={handleItemChange} />
+        {/* <label>HSN/SAC:</label>
+        <input type="text" name="hsnSac" value={newItem.hsnSac} onChange={handleItemChange} /> */}
 
         <label>Amount:</label>
         <input type="number" name="amount" value={newItem.amount} onChange={handleItemChange} />
@@ -123,8 +128,16 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         {/* Invoice Summary */}
         <h3>Invoice Summary</h3>
         <div>
-          <label>Tax Rate (%):</label>
-          <input type="number" name="taxRate" value={formData.taxRate} onChange={handleChange} />
+          <label>G.S.T. (%):</label>
+          <input type="number" name="gstTax" value={formData.gstTax} onChange={handleChange} />
+        </div>
+        <div>
+          <label>I.G.S.T. (%):</label>
+          <input type="number" name="igstTax" value={formData.igstTax} onChange={handleChange} />
+        </div>
+        <div>
+          <label>C.G.S.T. (%):</label>
+          <input type="number" name="cgstTax" value={formData.cgstTax} onChange={handleChange} />
           <p><strong>Total: ₹ {total.toFixed(2)}</strong></p>
         </div>
 
