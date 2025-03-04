@@ -23,7 +23,8 @@ const companyDetails = {
             bankAddress: "Ground Floor, Near Allahabad Bank, Purana Bazar, Gomoh, Jharkhand 828401"
         },
         img: OctaAds,
-        sign: OctSign
+        sign: OctSign,
+        disclaimer:''
     },
     HikeMedia: {
         name: "Hike Media LLC.",
@@ -37,7 +38,8 @@ const companyDetails = {
             bankAddress: "Sharjah Media City Free Zone, Sharjah, UAE"
         },
         img: HikeMedia,
-        sign: HikeOct
+        sign: HikeOct,
+        disclaimer:'We declare that this inovice shows the actual price of the goods described and that all particulars are true and corrent.'
     }
 };
 // const uploadImage = async (imageData) => {
@@ -322,6 +324,14 @@ const Invoice = () => {
 
                     <div className='discliamer'>
                         <div className='info_div'>
+                            {
+                                company.disclaimer.length>0?
+                                <>
+                            <h4>Disclaimer</h4>
+
+                                <p>{company.disclaimer}</p>
+                                </>:
+                            <>
                             <h4>Disclaimer</h4>
                             <p>Tax May Be Deducted At Source (TDS) @ 2% Under Section 194C Of The Income Tax Act, 1961.Tax Should Not Be Deducted On The GST Component Charged On The Invoice.</p>
                             <ul>
@@ -330,6 +340,8 @@ const Invoice = () => {
                                 <li> If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</li>
                                 <li>This Invoice Is Digitally Sign+A27:J30ned.</li>
                             </ul>
+                            </>
+}
                         </div>
                         <div className='sign_div'>
                             <p>For {company.name}</p>
