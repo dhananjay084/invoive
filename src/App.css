@@ -7,7 +7,7 @@
   background: #fff;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Ensures no extra space */
+  overflow: hidden; 
   position: relative;
 }
 .invoice-background {
@@ -247,11 +247,11 @@ color: #02CBF0;
   display: flex;
   flex-direction: column;
   gap: 5px;
+  border: 1px solid #ccc;
+  padding: 5px;
 
 }
-.total_val{
-  /* background-color: #02CBF0; */
-}
+
 .invoice-summary span , .subtotal_spn{
   width: 100%;
   display: flex;
@@ -305,6 +305,11 @@ color: #02CBF0;
   border-top: 1px solid #ccc;
 
 }
+.discliamer .info_div{
+  border-right: 1px solid #ccc;
+  padding-right: 20px;
+
+}
 .discliamer p{
   font-size: 10px;
 }
@@ -337,4 +342,31 @@ color: #02CBF0;
 }
 .sign-logo{
   max-width: 300px;
+}
+.digital_sign{
+  text-align: center;
+  position: relative;
+}
+.digital_sign h3{
+  font-size: 20px;
+}
+.notes_div{
+  margin-top: 15px;
+}
+
+.bg_image{
+  background-image: url('./logo.gif');
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  z-index: 0;
+}
+.invoice_table tr td{
+  padding: 5px;
 }

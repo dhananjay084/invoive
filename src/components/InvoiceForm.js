@@ -52,6 +52,7 @@ const companyDetails = {
 const Invoice = () => {
     const [selectedCompany, setSelectedCompany] = useState("OctaAds");
     const [modalOpen, setModalOpen] = useState(false);
+    const [signatureDate, setSignatureDate] = useState(null);
     const [invoiceData, setInvoiceData] = useState({
         customerName: "",
         address1: "",
@@ -82,9 +83,9 @@ const Invoice = () => {
     // const calculateTaxAmount = () => {
     //     return (calculateSubtotal() * invoiceData.taxRate) / 100;
     // };
-   
 
-  
+
+
 
     const company = companyDetails[selectedCompany];
 
@@ -115,7 +116,7 @@ const Invoice = () => {
     const calculateTaxAmount = () => {
         const subtotal = calculateSubtotal();
         let totalTax = 0;
-    
+
         if (invoiceData.gstTax) {
             totalTax += calculateTax(subtotal, invoiceData.gstTax);
         }
@@ -125,7 +126,7 @@ const Invoice = () => {
         if (invoiceData.cgstTax) {
             totalTax += calculateTax(subtotal, invoiceData.cgstTax);
         }
-    
+
         return totalTax;
     };
     const calculateTotalAmount = () => {
@@ -137,7 +138,18 @@ const Invoice = () => {
         return { totalBeforeRounding, roundOff, roundedTotal };
     };
     const { totalBeforeRounding, roundOff, roundedTotal } = calculateTotalAmount();
+    const handleSign = () => {
+        const now = new Date();
+        const formattedDate = now.toISOString().replace("T", " ").slice(0, -5); // Format as "YYYY-MM-DD HH:MM:SS"
+        const timeZoneOffset = now.getTimezoneOffset();
+        const hoursOffset = Math.abs(Math.floor(timeZoneOffset / 60));
+        const minutesOffset = Math.abs(timeZoneOffset % 60);
+        const sign = timeZoneOffset > 0 ? "-" : "+";
 
+        const formattedTimeZone = `${sign}${String(hoursOffset).padStart(2, "0")}'${String(minutesOffset).padStart(2, "0")}'`;
+
+        setSignatureDate(`${formattedDate} ${formattedTimeZone}`);
+    };
     return (
         <>
             <div className="company-selection">
@@ -148,6 +160,8 @@ const Invoice = () => {
                 </select>
                 <button onClick={() => setModalOpen(true)}>Add Values</button>
                 <button onClick={handleDownloadPDF} className="download-btn">Download Invoice</button>
+                <button onClick={handleSign}>Sign</button>
+
 
             </div>
 
@@ -155,155 +169,180 @@ const Invoice = () => {
             <ModalComponent isOpen={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleModalSubmit} />
 
             <div ref={invoiceRef} className="invoice-container" >
-            <div className="invoice-background" style={{ backgroundImage: `url(${company.img})` }}></div> 
-            <div className="invoice-content">
-                <header className="invoice-header">
-                    <div className="logo">
-                        <h2>{company.name}</h2>
-                        <p>{company.address}</p>
-                        {company.gst && <p>GST: {company.gst}</p>}
-                        {company.CIN && <p>CIN: {company.CIN}</p>}
-                    </div>
-                    {/* <div className="barcode">
+                <div className="invoice-background" style={{ backgroundImage: `url(${company.img})` }}></div>
+                <div className="invoice-content">
+                    <header className="invoice-header">
+                        <div className="logo">
+                            <h2>{company.name}</h2>
+                            <p>{company.address}</p>
+                            {company.gst && <p>GST: {company.gst}</p>}
+                            {company.CIN && <p>CIN: {company.CIN}</p>}
+                        </div>
+                        {/* <div className="barcode">
                         <QRCode value="Invoice Details" size={70} />
                     </div> */}
-                    <div className='header-logo'>
-                        <img src={company.img} />
-                    </div>
-                </header>
+                        <div className='header-logo'>
+                            <img src={company.img} />
+                        </div>
+                    </header>
 
-                <section className="bill-to">
-                    <div>
-                        <h3>Bill To:</h3>
-                        <p>{invoiceData.customerName}</p>
-                        <p>{invoiceData.address1}</p>
-                        <p>{invoiceData.address2}</p>
-                        <p>{invoiceData.phone}</p>
-                        <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p>
+                    <section className="bill-to">
+                        <div>
+                            <h3>Bill To:</h3>
+                            <p>{invoiceData.customerName}</p>
+                            <p>{invoiceData.address1}</p>
+                            <p>{invoiceData.address2}</p>
+                            <p>{invoiceData.phone}</p>
+                            <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p>
 
-                    </div>
-                    <div>
-                        <p className="invoice-date">Invoice No: {invoiceData.invoiceNo}</p>
-                        <p className="invoice-date">Invoice Date: {invoiceData.invoiceDate}</p>
-                        <p className="invoice-date">Due Date: {invoiceData.dueDate}</p>
-                    </div>
-                </section>
+                        </div>
+                        <div>
+                            <table className='invoice_table'>
+                                <tr>
+                                    <td>Invoice No:</td>
+                                    <td>{invoiceData.invoiceNo}</td>
+                                </tr>
+                              
+                                
+                                <tr>
+                                    <td>    Invoice Date: </td>
+                                    <td>{invoiceData.invoiceDate}</td>
+                                </tr>
+                                
+                                <tr>
+                                    <td>Due Date:</td>
+                                    <td>{invoiceData.dueDate}</td>
+                                </tr>
+                            </table>
+                      
+                        </div>
+                    </section>
 
-                <table className="invoice-table">
-                    <thead>
-                        <tr>
-                            <th>S. No</th>
-                            <th>Description</th>
-                            <th>Payout</th>
-                            <th>HSN/SAC</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {invoiceData.items.map((item, index) => (
-                            <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>{item.description}</td>
-                                <td>{item.validatorPayout}</td>
-                                <td>998361</td>
-                                <td>₹ {item.amount}</td>
+                    <table className="invoice-table">
+                        <thead>
+                            <tr>
+                                <th>S. No</th>
+                                <th>Description</th>
+                                <th>Payout</th>
+                                <th>HSN/SAC</th>
+                                <th>Amount</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {invoiceData.items.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{index + 1}</td>
+                                    <td>{item.description}</td>
+                                    <td>{item.validatorPayout}</td>
+                                    <td>998361</td>
+                                    <td>₹ {item.amount}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
 
-                <div className="total_div">
-                    <div>
-                        <p>Thank you for your business!</p>
-                        <p>{`Amount In Words: ${toWords(roundedTotal.toFixed(2)).replace(/^\w/, (c) => c.toUpperCase())} only`}</p>
+                    <div className="total_div">
+                        <div>
 
-                    </div>
-                    <div className="total_divs">
-                        <span className="subtotal_spn">
-                            <p>Taxable Amt:</p>
-                            <p>₹ {calculateSubtotal().toFixed(2)}</p>
-                        </span>
-                        <div className="invoice-summary">
-                            {
-                                invoiceData.gstTax &&
-                                <>
-                                    <span>
-                                        <p>SGST ({invoiceData.gstTax}%):  </p>
-                                        <p>{calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
-                                    </span>
+                            <p>{`Amount In Words: ${toWords(roundedTotal.toFixed(2)).replace(/^\w/, (c) => c.toUpperCase())} only`}</p>
+                            <div className='notes_div'>
+                                <h4>Notes !</h4>
+                                <p>Thank you for your business!</p>
 
-                                </>
-                            }
-                            {
-                                invoiceData.igstTax &&
-                                <>
-                                    <span>
-                                        <p>IGST ({invoiceData.igstTax}%): </p>
-                                        <p>{calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
-
-
-                                    </span>
-
-                                </>
-                            }
-                            {
-                                invoiceData.cgstTax &&
-                                <>
-                                    <span>
-                                        <p>CGST ({invoiceData.cgstTax}%): </p>
-                                        <p>{calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
-
-
-
-                                    </span>
-
-                                </>
-                            }
-
-                            <span>
-                                <p>Tax Amount : </p>
-                                <p>₹ {calculateTaxAmount().toFixed(2)}</p>
+                            </div>
+                        </div>
+                        <div className="total_divs">
+                            <span className="subtotal_spn">
+                                <p>Taxable Amt:</p>
+                                <p>₹ {calculateSubtotal().toFixed(2)}</p>
                             </span>
-                            <span>
-                                <p>Round Off: </p>
-                                <p>₹ {roundOff.toFixed(2)}</p>
-                            </span>
-                            <span className="total_val">
-                                <p>Total Amount: </p>
-                                <p>₹ {roundedTotal.toFixed(2)}</p>
-                            </span>
+                            <div className="invoice-summary">
+                                {
+                                    invoiceData.gstTax &&
+                                    <>
+                                        <span>
+                                            <p>SGST ({invoiceData.gstTax}%):  </p>
+                                            <p>{calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
+                                        </span>
+
+                                    </>
+                                }
+                                {
+                                    invoiceData.igstTax &&
+                                    <>
+                                        <span>
+                                            <p>IGST ({invoiceData.igstTax}%): </p>
+                                            <p>{calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
+
+
+                                        </span>
+
+                                    </>
+                                }
+                                {
+                                    invoiceData.cgstTax &&
+                                    <>
+                                        <span>
+                                            <p>CGST ({invoiceData.cgstTax}%): </p>
+                                            <p>{calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
+
+
+
+                                        </span>
+
+                                    </>
+                                }
+
+                                <span>
+                                    <p>Tax Amount : </p>
+                                    <p>₹ {calculateTaxAmount().toFixed(2)}</p>
+                                </span>
+                                <span>
+                                    <p>Round Off: </p>
+                                    <p>₹ {roundOff.toFixed(2)}</p>
+                                </span>
+                                <span className="total_val">
+                                    <p>Total Amount: </p>
+                                    <p>₹ {roundedTotal.toFixed(2)}</p>
+                                </span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <footer className="payment-info">
-                    {/* <h4>Payment Options</h4> */}
-                    <h4>Company Bank Details</h4>
-                    <p>Bank: {company.bank.name}</p>
-                    <p>Account Name: {company.bank.accountHolder}</p>
-                    <p>Account Number: {company.bank.accountNo}</p>
-                    {company.bank.ifsc && <p>IFSC: {company.bank.ifsc}</p>}
-                    <p>Swift: {company.bank.swift}</p>
-                    <p>Bank Address: {company.bank.bankAddress}</p>
-                </footer>
+                    <footer className="payment-info">
+                        {/* <h4>Payment Options</h4> */}
+                        <h4>Company Bank Details</h4>
+                        <p>Bank: {company.bank.name}</p>
+                        <p>Account Name: {company.bank.accountHolder}</p>
+                        <p>Account Number: {company.bank.accountNo}</p>
+                        {company.bank.ifsc && <p>IFSC: {company.bank.ifsc}</p>}
+                        <p>Swift: {company.bank.swift}</p>
+                        <p>Bank Address: {company.bank.bankAddress}</p>
+                    </footer>
 
-                <div className='discliamer'>
-                    <div>
-                        <h4>Disclaimer</h4>
-                        <p>Tax May Be Deducted At Source (TDS) @ 2% Under Section 194C Of The Income Tax Act, 1961.Tax Should Not Be Deducted On The GST Component Charged On The Invoice.</p>
-                        <ul>
-                            <li>Advertisement Campaign Billing As Per Validation.</li>
-                            <li> All Campaigns Will Be Paused In Case Of Pending Invoices.</li>
-                            <li> If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</li>
-                            <li>This Invoice Is Digitally Sign+A27:J30ned.</li>
-                        </ul>
+                    <div className='discliamer'>
+                        <div className='info_div'>
+                            <h4>Disclaimer</h4>
+                            <p>Tax May Be Deducted At Source (TDS) @ 2% Under Section 194C Of The Income Tax Act, 1961.Tax Should Not Be Deducted On The GST Component Charged On The Invoice.</p>
+                            <ul>
+                                <li>Advertisement Campaign Billing As Per Validation.</li>
+                                <li> All Campaigns Will Be Paused In Case Of Pending Invoices.</li>
+                                <li> If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</li>
+                                <li>This Invoice Is Digitally Sign+A27:J30ned.</li>
+                            </ul>
+                        </div>
+                        <div className='sign_div'>
+                            <p>For {company.name}</p>
+                            <div className='digital_sign'>
+                                <div className='bg_image'></div>
+                                <h3>ABDULLA KHAN</h3>
+                                <p>Digitally signed by ABDULLA KHAN</p>
+                                <p>Date: {signatureDate || "Click 'Sign' to generate timestamp"}</p>
+                            </div>
+                            {/* <img className='sign-logo' src={company.sign} /> */}
+                            <p>Authorised Signatory</p>
+                        </div>
                     </div>
-                    <div className='sign_div'>
-                        <p>For {company.name}</p>
-                        <img className='sign-logo' src={company.sign} />
-                        <p>Authorised Signatory</p>
-                    </div>
-                </div>
                 </div>
             </div>
 
