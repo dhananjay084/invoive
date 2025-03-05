@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    invoiceNo:'',
+    invoiceNo: '',
     customerName: "",
     address1: "",
     address2: "",
@@ -11,9 +12,10 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     dueDate: "",
     clientGST: "",
     items: [],
-    gstTax: "", 
-    igstTax:'',
-    cgstTax:''
+    gstTax: "",
+    igstTax: '',
+    cgstTax: '',
+    currency: "USD" 
   });
 
   const [newItem, setNewItem] = useState({
@@ -22,6 +24,33 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     hsnSac: "",
     amount: "",
   });
+
+  const [currencies, setCurrencies] = useState({});
+
+  useEffect(() => {
+    // Fetch currency data from ExchangeRate-API
+    axios.get('https://open.er-api.com/v6/latest/USD')
+      .then(response => {
+        const currencyData = response.data.rates;
+        const currencySymbols = {
+          USD: "$",
+          EUR: "€",
+          GBP: "£",
+          INR: "₹",
+          JPY: "¥",
+          AUD: "A$",
+          CAD: "C$",
+          CHF: "CHF",
+          CNY: "¥",
+          SEK: "kr",
+          NZD: "NZ$"
+        };
+        setCurrencies(currencySymbols);
+      })
+      .catch(error => {
+        console.error("Error fetching currency data:", error);
+      });
+  }, []);
 
   if (!isOpen) return null;
 
@@ -34,7 +63,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   };
 
   const addItem = () => {
-    if (!newItem.description || !newItem.validatorPayout  || !newItem.amount) {
+    if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
       alert("Please fill all item fields before adding.");
       return;
     }
@@ -47,19 +76,33 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
   };
 
-  // Calculate total (sum of item amounts)
   const total = formData.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+  const currencySymbol = currencies[formData.currency] || formData.currency;
+
 
   const handleSubmit = () => {
-    onSubmit({ ...formData, total });
+    onSubmit({ ...formData, total, currency: currencies[formData.currency] || formData.currency });
     onClose();
   };
+  
+
 
   return (
     <div className="modal">
       <div className="modal-content">
         <h2>Enter Invoice Details</h2>
-        <label>Invoive No:</label>
+
+        {/* Currency Dropdown */}
+        <label>Currency:</label>
+        <select name="currency" value={formData.currency} onChange={handleChange}>
+  {Object.entries(currencies || {}).map(([code, symbol]) => (
+    <option key={code} value={code}>{code} ({symbol})</option>
+  ))}
+</select>
+
+
+
+        <label>Invoice No:</label>
         <input type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} />
 
         <label>Customer Name:</label>
@@ -71,7 +114,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <label>Address Line 2:</label>
         <input type="text" name="address2" value={formData.address2} onChange={handleChange} />
 
-        <label>PiNcode:</label>
+        <label>PIN Code:</label>
         <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
 
         <label>Invoice Date:</label>
@@ -90,9 +133,6 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <label>Validator Payout:</label>
         <input type="text" name="validatorPayout" value={newItem.validatorPayout} onChange={handleItemChange} />
 
-        {/* <label>HSN/SAC:</label>
-        <input type="text" name="hsnSac" value={newItem.hsnSac} onChange={handleItemChange} /> */}
-
         <label>Amount:</label>
         <input type="number" name="amount" value={newItem.amount} onChange={handleItemChange} />
 
@@ -107,7 +147,6 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
                 <tr>
                   <th>Description</th>
                   <th>Validator Payout</th>
-                  <th>HSN/SAC</th>
                   <th>Amount</th>
                 </tr>
               </thead>
@@ -116,8 +155,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
                   <tr key={index}>
                     <td>{item.description}</td>
                     <td>{item.validatorPayout}</td>
-                    <td>{item.hsnSac}</td>
-                    <td>₹ {item.amount.toFixed(2)}</td>
+                    <td>{currencySymbol} {item.amount.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -138,8 +176,9 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <div>
           <label>C.G.S.T. (%):</label>
           <input type="number" name="cgstTax" value={formData.cgstTax} onChange={handleChange} />
-          <p><strong>Total: ₹ {total.toFixed(2)}</strong></p>
         </div>
+        
+        <p><strong>Total: {currencySymbol} {total.toFixed(2)}</strong></p>
 
         <button type="button" onClick={handleSubmit}>Submit</button>
         <button type="button" onClick={onClose}>Close</button>

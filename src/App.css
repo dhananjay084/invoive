@@ -310,6 +310,9 @@ color: #02CBF0;
   padding-right: 20px;
 
 }
+.inner_info{
+  max-width: 55%;
+}
 .discliamer p{
   font-size: 10px;
 }
@@ -350,8 +353,11 @@ color: #02CBF0;
 .digital_sign h3{
   font-size: 20px;
 }
+.digital_sign p{
+  font-size: 12px;
+}
 .notes_div{
-  margin-top: 15px;
+  margin-top: 25px;
 }
 
 .bg_image{

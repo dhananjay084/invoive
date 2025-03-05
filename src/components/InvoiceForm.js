@@ -152,6 +152,7 @@ const Invoice = () => {
 
         setSignatureDate(`${formattedDate} ${formattedTimeZone}`);
     };
+    console.log(invoiceData)
     return (
         <>
             <div className="company-selection">
@@ -237,7 +238,7 @@ const Invoice = () => {
                                     <td>{item.description}</td>
                                     <td>{item.validatorPayout}</td>
                                     <td>998361</td>
-                                    <td>₹ {item.amount}</td>
+                                    <td> {item.amount}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -256,7 +257,7 @@ const Invoice = () => {
                         <div className="total_divs">
                             <span className="subtotal_spn">
                                 <p>Taxable Amt:</p>
-                                <p>₹ {calculateSubtotal().toFixed(2)}</p>
+                                <p>{invoiceData.currency} {calculateSubtotal().toFixed(2)}</p>
                             </span>
                             <div className="invoice-summary">
                                 {
@@ -264,7 +265,7 @@ const Invoice = () => {
                                     <>
                                         <span>
                                             <p>SGST ({invoiceData.gstTax}%):  </p>
-                                            <p>{calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
+                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
                                         </span>
 
                                     </>
@@ -274,7 +275,7 @@ const Invoice = () => {
                                     <>
                                         <span>
                                             <p>IGST ({invoiceData.igstTax}%): </p>
-                                            <p>{calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
+                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
 
 
                                         </span>
@@ -286,7 +287,7 @@ const Invoice = () => {
                                     <>
                                         <span>
                                             <p>CGST ({invoiceData.cgstTax}%): </p>
-                                            <p>{calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
+                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
 
 
 
@@ -297,15 +298,15 @@ const Invoice = () => {
 
                                 <span>
                                     <p>Tax Amount : </p>
-                                    <p>₹ {calculateTaxAmount().toFixed(2)}</p>
+                                    <p>{invoiceData.currency} {calculateTaxAmount().toFixed(2)}</p>
                                 </span>
                                 <span>
                                     <p>Round Off: </p>
-                                    <p>₹ {roundOff.toFixed(2)}</p>
+                                    <p> {invoiceData.currency} {roundOff.toFixed(2)}</p>
                                 </span>
                                 <span className="total_val">
                                     <p>Total Amount: </p>
-                                    <p>₹ {roundedTotal.toFixed(2)}</p>
+                                    <p>{invoiceData.currency} {roundedTotal.toFixed(2)}</p>
                                 </span>
                             </div>
                         </div>
@@ -324,6 +325,7 @@ const Invoice = () => {
 
                     <div className='discliamer'>
                         <div className='info_div'>
+                            <div className='inner_info'>
                             {
                                 company.disclaimer.length>0?
                                 <>
@@ -342,6 +344,7 @@ const Invoice = () => {
                             </ul>
                             </>
 }
+                        </div>
                         </div>
                         <div className='sign_div'>
                             <p>For {company.name}</p>
