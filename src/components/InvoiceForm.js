@@ -3,7 +3,7 @@ import ModalComponent from './ModalComponent';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import HikeMedia from "../logo2.jpeg";
-import OctaAds from "../logo.gif";
+import OctaAds from "../logo.png";
 import OctSign from "../SignOct.jpeg";
 import HikeOct from "../SignHike.jpeg";
 import { toWords } from "number-to-words";
@@ -142,16 +142,33 @@ const Invoice = () => {
     const { totalBeforeRounding, roundOff, roundedTotal } = calculateTotalAmount();
     const handleSign = () => {
         const now = new Date();
-        const formattedDate = now.toISOString().replace("T", " ").slice(0, -5); // Format as "YYYY-MM-DD HH:MM:SS"
-        const timeZoneOffset = now.getTimezoneOffset();
-        const hoursOffset = Math.abs(Math.floor(timeZoneOffset / 60));
-        const minutesOffset = Math.abs(timeZoneOffset % 60);
-        const sign = timeZoneOffset > 0 ? "-" : "+";
-
-        const formattedTimeZone = `${sign}${String(hoursOffset).padStart(2, "0")}'${String(minutesOffset).padStart(2, "0")}'`;
-
-        setSignatureDate(`${formattedDate} ${formattedTimeZone}`);
+    
+        // Convert to IST using Intl.DateTimeFormat
+        const formatter = new Intl.DateTimeFormat('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23' // Ensures 24-hour format
+        });
+    
+        // Format date correctly
+        const parts = formatter.formatToParts(now);
+        const day = parts.find(p => p.type === 'day').value;
+        const month = parts.find(p => p.type === 'month').value;
+        const year = parts.find(p => p.type === 'year').value;
+        const hours = parts.find(p => p.type === 'hour').value;
+        const minutes = parts.find(p => p.type === 'minute').value;
+    
+        const formattedDate = `${day}-${month}-${year}, ${hours}:${minutes} IST`;
+    
+        setSignatureDate(formattedDate);
     };
+    
+    
+    
     console.log(invoiceData)
     return (
         <>

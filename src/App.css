@@ -32,6 +32,9 @@
   width: 200px;
   height: 200px;
 }
+.header-logo img{
+  max-width: 80%;
+}
 .company-selection {
   margin-bottom: 15px;
 }
@@ -62,7 +65,7 @@
   max-width: 40%;
 }
 .logo h2 {
-  color: #02CBF0;
+  color: #02abca;
   margin: 0;
   font-size: 30px;
 }
@@ -73,7 +76,7 @@
   justify-content: space-between;
 }
 .bill-to h3{
-  color: #02CBF0;
+  color: #02abca;
 }
 .invoice-table {
   width: 100%;
@@ -81,7 +84,7 @@
   margin-top: 20px;
 }
 .invoice-table th{
-color: #02CBF0;
+color: #02abca;
 }
 .invoice-table th,
 .invoice-table td {
@@ -104,7 +107,7 @@ color: #02CBF0;
   align-items: center;
 }
 .totals .details  .total_amount{
-  background-color: #02CBF0;
+  background-color: #02abca;
 }
 
 .payment-info {
@@ -115,7 +118,7 @@ color: #02CBF0;
 
 }
 .payment-info h4{
-  color: #02CBF0;
+  color: #02abca;
 }
 .company-selection {
   display: flex;
@@ -336,6 +339,7 @@ color: #02CBF0;
   align-items: center;
   gap: 10px;
   margin-top: 10px;
+  width: 50%
 }
 .sign_div p{
   font-size: 15px;
