@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef,useEffect } from 'react';
 import ModalComponent from './ModalComponent';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -66,7 +66,13 @@ const Invoice = () => {
         items: [],
         taxRate: 0
     });
+    const [bgLoaded, setBgLoaded] = useState(false);
 
+    useEffect(() => {
+        const img = new Image();
+        img.src = company.img;
+        img.onload = () => setBgLoaded(true);
+    }, [selectedCompany]);
     const invoiceRef = useRef(); // Reference for capturing the invoice div
 
     const handleCompanyChange = (e) => {
@@ -92,25 +98,95 @@ const Invoice = () => {
     const company = companyDetails[selectedCompany];
 
     // Function to download the invoice as PDF
-    const handleDownloadPDF = () => {
+    // const handleDownloadPDF = () => {
+    //     const input = invoiceRef.current;
+    //     html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
+    //         const imgData = canvas.toDataURL("image/png");
+    //         const pdf = new jsPDF("p", "mm", "a4");
+
+    //         const imgWidth = 210; // A4 width in mm
+    //         const pageHeight = 297; // A4 height in mm
+    //         const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+    //         let pdfHeight = (canvas.height * 210) / canvas.width; // Convert height proportionally
+
+    //         if (pdfHeight > pageHeight) {
+    //             pdf.internal.pageSize.height = pdfHeight; // Adjust PDF page height dynamically
+    //         }
+
+    //         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, pdfHeight);
+    //         pdf.save(`Invoice_${selectedCompany}.pdf`);
+    //     });
+    // };
+    const handleDownloadPDF = async() => {
+        await Promise.all(
+            Array.from(document.images).map(img => 
+                img.complete ? Promise.resolve() : new Promise(resolve => {
+                    img.onload = img.onerror = resolve;
+                })
+            )
+        );
         const input = invoiceRef.current;
-        html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "mm", "a4");
-
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
-
-            let pdfHeight = (canvas.height * 210) / canvas.width; // Convert height proportionally
-
-            if (pdfHeight > pageHeight) {
-                pdf.internal.pageSize.height = pdfHeight; // Adjust PDF page height dynamically
-            }
-
-            pdf.addImage(imgData, "PNG", 0, 0, imgWidth, pdfHeight);
-            pdf.save(`Invoice_${selectedCompany}.pdf`);
+    
+    // Hide UI elements that shouldn't appear in PDF
+    const buttons = document.querySelectorAll('.company-selection');
+    buttons.forEach(btn => btn.style.visibility = 'hidden');
+    
+    // Store original styles
+    const originalStyles = {
+        width: input.style.width,
+        height: input.style.height,
+        overflow: input.style.overflow
+    };
+    
+    // Set dimensions that will fit on A4
+    input.style.width = '210mm';
+    input.style.height = 'auto'; // Let content determine height
+    input.style.overflow = 'visible';
+    
+    html2canvas(input, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: null,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: input.scrollWidth,
+        windowHeight: input.scrollHeight
+    }).then((canvas) => {
+        // Restore original styles
+        input.style.width = originalStyles.width;
+        input.style.height = originalStyles.height;
+        input.style.overflow = originalStyles.overflow;
+        buttons.forEach(btn => btn.style.visibility = 'visible');
+        
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'mm',
+            format: 'a4'
         });
+        
+        const imgWidth = 210; // A4 width in mm
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        
+        // Calculate scaling factor to fit on one page
+        const pageHeight = 297; // A4 height in mm
+        const scaleFactor = imgHeight > pageHeight ? pageHeight / imgHeight : 1;
+        
+        // Add image scaled to fit one page
+        pdf.addImage(
+            imgData, 
+            'PNG', 
+            0, 
+            0, 
+            imgWidth * scaleFactor, 
+            imgHeight * scaleFactor
+        );
+        
+        pdf.save(`Invoice_${selectedCompany}.pdf`);
+    });
     };
     const calculateTax = (total, tax) => {
         return (parseFloat(total) * parseFloat(tax)) / 100;
@@ -170,6 +246,61 @@ const Invoice = () => {
     
     
     console.log(invoiceData)
+    const numberToIndianWords = (num) => {
+        const ones = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+        const teens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 
+                      'seventeen', 'eighteen', 'nineteen'];
+        const tens = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 
+                     'eighty', 'ninety'];
+        
+        if (num === 0) return 'zero';
+        
+        let result = '';
+        const crore = Math.floor(num / 10000000);
+        num %= 10000000;
+        
+        const lakh = Math.floor(num / 100000);
+        num %= 100000;
+        
+        const thousand = Math.floor(num / 1000);
+        num %= 1000;
+        
+        const hundred = Math.floor(num / 100);
+        num %= 100;
+        
+        const ten = Math.floor(num / 10);
+        const one = num % 10;
+        
+        if (crore > 0) {
+            result += numberToIndianWords(crore) + ' crore ';
+        }
+        if (lakh > 0) {
+            result += numberToIndianWords(lakh) + ' lakh ';
+        }
+        if (thousand > 0) {
+            result += numberToIndianWords(thousand) + ' thousand ';
+        }
+        if (hundred > 0) {
+            result += ones[hundred] + ' hundred ';
+        }
+        
+        if (num > 0) {
+            if (result !== '') result += 'and ';
+            
+            if (num < 10) {
+                result += ones[num];
+            } else if (num < 20) {
+                result += teens[num - 10];
+            } else {
+                result += tens[ten];
+                if (one > 0) {
+                    result += ' ' + ones[one];
+                }
+            }
+        }
+        
+        return result.trim();
+    };
     return (
         <>
             <div className="company-selection">
@@ -189,7 +320,12 @@ const Invoice = () => {
             <ModalComponent isOpen={modalOpen} onClose={() => setModalOpen(false)} onSubmit={handleModalSubmit} />
 
             <div ref={invoiceRef} className="invoice-container" >
-                <div className="invoice-background" style={{ backgroundImage: `url(${company.img})` }}></div>
+                <div className="invoice-background"  style={{ 
+        backgroundImage: bgLoaded ? `url(${company.img})` : 'none',
+        backgroundSize: 'contain',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center'
+    }}></div>
                 <div className="invoice-content">
                     <header className="invoice-header">
                         <div className="logo">
@@ -213,8 +349,11 @@ const Invoice = () => {
                             <p>{invoiceData.address1}</p>
                             <p>{invoiceData.address2}</p>
                             <p>{invoiceData.phone}</p>
+                            <p className="invoice-date">Pan No: {invoiceData.panNo}</p>
+
                             <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p>
 
+                            
                         </div>
                         <div>
                             <table className='invoice_table'>
@@ -264,75 +403,65 @@ const Invoice = () => {
                     <div className="total_div">
                         <div>
 
-                            <p>{`Amount In Words: ${toWords(roundedTotal.toFixed(2)).replace(/^\w/, (c) => c.toUpperCase())} only`}</p>
+                            {/* <p>{`Amount In Words: ${toWords(roundedTotal.toFixed(2)).replace(/^\w/, (c) => c.toUpperCase())} only`}</p> */}
                             <div className='notes_div'>
-                                <h4>Notes !</h4>
+                            <p>{`Amount In Words: ${numberToIndianWords(Math.floor(roundedTotal)).replace(/^\w/, c => c.toUpperCase())} rupees only`}</p>
                                 <p>Thank you for your business!</p>
 
                             </div>
                         </div>
                         <div className="total_divs">
-                            <span className="subtotal_spn">
-                                <p>Taxable Amt:</p>
-                                <p>{invoiceData.currency} {calculateSubtotal().toFixed(2)}</p>
-                            </span>
-                            <div className="invoice-summary">
-                                {
-                                    invoiceData.gstTax &&
-                                    <>
-                                        <span>
-                                            <p>SGST ({invoiceData.gstTax}%):  </p>
-                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
-                                        </span>
+  
 
-                                    </>
-                                }
-                                {
-                                    invoiceData.igstTax &&
-                                    <>
-                                        <span>
-                                            <p>IGST ({invoiceData.igstTax}%): </p>
-                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
+  <div className="invoice-summary-table">
+  <div className="summary-row">
+    <p>Taxable Amt:</p>
+    <p>{invoiceData.currency} {calculateSubtotal().toFixed(2)}</p>
+  </div>
+    {invoiceData.gstTax && (
+      <div className="summary-row">
+        <p>SGST ({invoiceData.gstTax}%):</p>
+        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
+      </div>
+    )}
 
+    {invoiceData.igstTax && (
+      <div className="summary-row">
+        <p>IGST ({invoiceData.igstTax}%):</p>
+        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
+      </div>
+    )}
 
-                                        </span>
+    {invoiceData.cgstTax && (
+      <div className="summary-row">
+        <p>CGST ({invoiceData.cgstTax}%):</p>
+        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
+      </div>
+    )}
 
-                                    </>
-                                }
-                                {
-                                    invoiceData.cgstTax &&
-                                    <>
-                                        <span>
-                                            <p>CGST ({invoiceData.cgstTax}%): </p>
-                                            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
+    <div className="summary-row">
+      <p>Tax Amount:</p>
+      <p>{invoiceData.currency} {calculateTaxAmount().toFixed(2)}</p>
+    </div>
 
+    <div className="summary-row">
+      <p>Round Off:</p>
+      <p>{invoiceData.currency} {roundOff.toFixed(2)}</p>
+    </div>
 
+    <div className="summary-row total_val">
+      <p><strong>Total Amount:</strong></p>
+      <p><strong>{invoiceData.currency} {roundedTotal.toFixed(2)}</strong></p>
+    </div>
+  </div>
+</div>
 
-                                        </span>
-
-                                    </>
-                                }
-
-                                <span>
-                                    <p>Tax Amount : </p>
-                                    <p>{invoiceData.currency} {calculateTaxAmount().toFixed(2)}</p>
-                                </span>
-                                <span>
-                                    <p>Round Off: </p>
-                                    <p> {invoiceData.currency} {roundOff.toFixed(2)}</p>
-                                </span>
-                                <span className="total_val">
-                                    <p>Total Amount: </p>
-                                    <p>{invoiceData.currency} {roundedTotal.toFixed(2)}</p>
-                                </span>
-                            </div>
-                        </div>
                     </div>
 
                     <footer className="payment-info">
                         {/* <h4>Payment Options</h4> */}
                         <h4>Company Bank Details</h4>
-                        <p>Bank: {company.bank.name}</p>
+                        <p>Bank Name: {company.bank.name}</p>
                         <p>Account Name: {company.bank.accountHolder}</p>
                         <p>Account Number: {company.bank.accountNo}</p>
                         {company.bank.ifsc && <p>IFSC: {company.bank.ifsc}</p>}
@@ -353,12 +482,24 @@ const Invoice = () => {
                             <>
                             <h4>Disclaimer</h4>
                             <p>Tax May Be Deducted At Source (TDS) @ 2% Under Section 194C Of The Income Tax Act, 1961.Tax Should Not Be Deducted On The GST Component Charged On The Invoice.</p>
-                            <ul>
-                                <li>Advertisement Campaign Billing As Per Validation.</li>
-                                <li> All Campaigns Will Be Paused In Case Of Pending Invoices.</li>
-                                <li> If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</li>
-                                <li>This Invoice Is Digitally Sign+A27:J30ned.</li>
-                            </ul>
+                            <div className="invoice-summary-table">
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>1</p>
+    <p>Advertisement Campaign Billing As Per Validation.</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>2</p>
+    <p>All Campaigns Will Be Paused In Case Of Pending Invoices.</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>3</p>
+    <p>If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>4</p>
+    <p>This Invoice Is Digitally Sign+A27:J30ned.</p>
+  </div>
+  </div>
                             </>
 }
                         </div>

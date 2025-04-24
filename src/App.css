@@ -1,3 +1,55 @@
+/* In your CSS file */
+.invoice-container {
+  width: 200mm; /* Slightly less than A4 width for padding */
+  min-height: 280mm; /* Less than A4 height to account for margins */
+  max-height: 280mm; /* Prevent overflow */
+  margin: 0 auto;
+  padding: 10mm;
+  box-sizing: border-box;
+  background: white;
+  position: relative;
+  overflow: hidden; /* Prevent content from spilling out */
+}
+
+.invoice-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed; /* Ensures consistent column widths */
+}
+
+.invoice-table td, .invoice-table th {
+  padding: 6px; /* Reduced padding for compact layout */
+  border: 1px solid #ddd;
+  font-size: 10px; /* Smaller font for more content */
+  word-wrap: break-word;
+}
+
+.total_div {
+  margin-top: auto; /* Pushes to bottom */
+  padding-top: 10px;
+}
+
+.payment-info, .discliamer {
+  font-size: 9px; /* Smaller font for footer content */
+  margin-top: 5px;
+}
+
+/* Ensure no page breaks in print */
+@media print {
+  .invoice-container {
+      height: 280mm !important;
+      overflow: visible !important;
+  }
+  .company-selection {
+      display: none !important;
+  }
+}
 .invoice-container {
   width: 80%;
   margin: auto;
@@ -9,6 +61,9 @@
   flex-direction: column;
   overflow: hidden; 
   position: relative;
+      
+    min-height: 297mm;
+  
 }
 .invoice-background {
     position: absolute;
@@ -252,9 +307,45 @@ color: #02abca;
   gap: 5px;
   border: 1px solid #ccc;
   padding: 5px;
+ 
 
 }
+.subtotal_row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
 
+.invoice-summary-table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+
+ 
+
+
+}
+.summary-row {
+  display: table-row;
+}
+
+.summary-row p {
+  display: table-cell;
+  padding: 4px 0;
+  text-align: left;
+}
+
+/* .summary-row p:last-child {
+  text-align: right;
+} */
+
+.total_val {
+  font-weight: 600;
+  border-top: 1px solid #ccc;
+  padding-top: 8px;
+  margin-top: 8px;
+}
 .invoice-summary span , .subtotal_spn{
   width: 100%;
   display: flex;
@@ -313,9 +404,7 @@ color: #02abca;
   padding-right: 20px;
 
 }
-.inner_info{
-  max-width: 55%;
-}
+
 .discliamer p{
   font-size: 10px;
 }

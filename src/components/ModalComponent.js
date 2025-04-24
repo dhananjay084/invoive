@@ -1,6 +1,98 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const data = [
+  {
+    name: 'HW WELLNESS SOLUTIONS PVT LTD',
+    address1: ' S.No 254, Tirumalla Industry Estate',
+    address2: 'Phase 2 road, Hinjawadi , Pune, Maharashtra',
+    pincode: '411057',
+    panNo: 'AADCH3292H',
+    gst: '27AADCH3292H1ZI'
+  },
+  {
+    name: 'WOGGLES DISTRIBUTION PRIVATE LIMITED',
+    address1: 'C/O CHANDERSH BHOLA, SHAYAM LAL',
+    address2: 'EKALINGPURA CHORAHA, MANVAKHEDA,Udaipur, Udaipur, Rajasthan',
+    pincode: '313001',
+    panNo: 'AADCW4321J',
+    gst: '08AADCW4321J1ZA'
+  },
+  {
+    name: 'INMARK EXPORTS PRIVATE LIMITED',
+    address1: 'E-33, 34, 35, 36, INDUSTRIAL AREA GNEPIP SITE-5',
+    address2: 'KASNA GREATER NOIDA, GREATER NOIDA,Gautambuddha Nagar,Uttar Pradesh',
+    pincode: '201308',
+    panNo: 'AAACI2271G',
+    gst: '09AAACI2271G1ZR'
+  },
+  {
+    name: 'RENEE COSMETICS PRIVATE LIMITED',
+    address1: 'Office No. 4, OM Complex, C.G. Road,',
+    address2: 'SWASTIK SOCIETY, AHMEDABAD,Gujarat, India ',
+    pincode: '380009',
+    panNo: 'AAJCR8656B',
+    gst: '24AAJCR8656B1ZA'
+  },
+  {
+    name: 'Zed Lifestyle Pvt Ltd - Gujarat',
+    address1: 'Reg. Office - 711, Shapath V, S.G. Road,',
+    address2: 'Prahlad Nagar, Ahmedabad,Gujarat ',
+    pincode: '380015',
+    panNo: 'AAACZ9479M',
+    gst: '24AAACZ9479M1ZH'
+  },
+  {
+    name: 'TITAN COMPANY LIMITED',
+    address1: 'NO.193, INTEGRITY, Veerasandra',
+    address2: 'Electronics City P.O, Off Hosur,Bangalore, Bengaluru (Bangalore) Urban,Karnataka',
+    pincode: '560100',
+    panNo: 'AAACT5131A',
+    gst: '29AAACT5131A1ZT'
+  },
+  {
+    name: 'Chameleon Ads',
+    address1: 'NO.193, INTEGRITY, Veerasandra',
+    address2: 'Spain',
+    pincode: '',
+    panNo: '',
+    gst: ''
+  },
+  {
+    name: 'FNP E Retail Private Limited',
+    address1: 'Ground Floor & First Floor, Plot No. 75P',
+    address2: 'Vatika Tower, Sector 44, Gurugram,Haryana',
+    pincode: '122001',
+    panNo: 'AAECF4247K',
+    gst: '06AAECF4247K1ZJ'
+  },
+  {
+  name: 'GUVI GEEK NETWORK PRIVATE LIMITED',
+  address1: 'Third floor, Module No. D3-09',
+  address2: 'IITM Research Park, D Block, Kanagam,Taramani Road, Chennai,Tamil Nadu',
+  pincode: '600113',
+  panNo: 'AAFCG7941Q',
+  gst: '33AAFCG7941Q1Z1'
+},
+{
+  name: 'Salty E-Commerce Private Limited',
+  address1: 'C-29, FIRST FLOOR, PAMPOSH ENCLAVE',
+  address2: 'Greater Kailash 1, New Delhi, South Delhi,Delhi',
+  pincode: '110048',
+  panNo: 'ABICS8098N',
+  gst: '07ABICS8098N1ZB'
+},
+{
+  name: 'WINSTON ELECTRONICS PRIVATE LIMITED',
+  address1: 'House No 742 Sector 14,',
+  address2: 'House No 742 Sector 14,  Faridabad,Haryana',
+  pincode: '121007',
+  panNo: 'AADCW0104F',
+  gst: '06AADCW0104F1ZY'
+}
+
+];
+
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     invoiceNo: '',
@@ -15,7 +107,8 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     gstTax: "",
     igstTax: '',
     cgstTax: '',
-    currency: "USD" 
+    currency: "USD",
+    panNo: ""
   });
 
   const [newItem, setNewItem] = useState({
@@ -28,11 +121,66 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [currencies, setCurrencies] = useState({});
 
   useEffect(() => {
-    // Fetch currency data from ExchangeRate-API
-    axios.get('https://open.er-api.com/v6/latest/USD')
-      .then(response => {
+    const fetchCurrencies = async () => {
+      try {
+        // First try the primary API
+        const response = await axios.get('https://open.er-api.com/v6/latest/USD');
         const currencyData = response.data.rates;
+        
+        // Comprehensive currency symbols map
         const currencySymbols = {
+          USD: "$",      // US Dollar
+          EUR: "€",      // Euro
+          GBP: "£",      // British Pound
+          INR: "₹",      // Indian Rupee
+          JPY: "¥",      // Japanese Yen
+          AUD: "A$",     // Australian Dollar
+          CAD: "C$",     // Canadian Dollar
+          CHF: "CHF",    // Swiss Franc
+          CNY: "¥",      // Chinese Yuan
+          SEK: "kr",     // Swedish Krona
+          NZD: "NZ$",    // New Zealand Dollar
+          SGD: "S$",     // Singapore Dollar
+          HKD: "HK$",    // Hong Kong Dollar
+          KRW: "₩",      // South Korean Won
+          MXN: "MX$",    // Mexican Peso
+          BRL: "R$",     // Brazilian Real
+          RUB: "₽",      // Russian Ruble
+          ZAR: "R",      // South African Rand
+          AED: "د.إ",    // UAE Dirham
+          SAR: "﷼",      // Saudi Riyal
+          TRY: "₺",      // Turkish Lira
+          IDR: "Rp",     // Indonesian Rupiah
+          MYR: "RM",     // Malaysian Ringgit
+          THB: "฿",      // Thai Baht
+          PHP: "₱",      // Philippine Peso
+          PLN: "zł",     // Polish Zloty
+          DKK: "kr",     // Danish Krone
+          NOK: "kr",     // Norwegian Krone
+          ILS: "₪",      // Israeli Shekel
+          CZK: "Kč",     // Czech Koruna
+          HUF: "Ft",     // Hungarian Forint
+          RON: "lei",    // Romanian Leu
+          BGN: "лв",     // Bulgarian Lev
+          HRK: "kn",     // Croatian Kuna
+          ISK: "kr",     // Icelandic Króna
+          // Add more currencies as needed
+        };
+  
+        // Filter to only include currencies that exist in the API response
+        const availableCurrencies = {};
+        for (const [code, symbol] of Object.entries(currencySymbols)) {
+          if (currencyData[code]) {
+            availableCurrencies[code] = symbol;
+          }
+        }
+  
+        setCurrencies(availableCurrencies);
+      } catch (error) {
+        console.error("Error fetching currency data:", error);
+        
+        // Fallback to a static list if API fails
+        const fallbackCurrencies = {
           USD: "$",
           EUR: "€",
           GBP: "£",
@@ -43,16 +191,36 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           CHF: "CHF",
           CNY: "¥",
           SEK: "kr",
-          NZD: "NZ$"
+          NZD: "NZ$",
+          SGD: "S$",
+          HKD: "HK$",
+          KRW: "₩",
+          MXN: "MX$",
+          BRL: "R$"
         };
-        setCurrencies(currencySymbols);
-      })
-      .catch(error => {
-        console.error("Error fetching currency data:", error);
-      });
+        setCurrencies(fallbackCurrencies);
+      }
+    };
+  
+    fetchCurrencies();
   }, []);
 
-  if (!isOpen) return null;
+  const handleCustomerSelect = (e) => {
+    const selectedCustomerName = e.target.value;
+    const selectedCustomer = data.find(customer => customer.name === selectedCustomerName);
+    
+    if (selectedCustomer) {
+      setFormData({
+        ...formData,
+        customerName: selectedCustomer.name,
+        address1: selectedCustomer.address1,
+        address2: selectedCustomer.address2,
+        phone: selectedCustomer.pincode,
+        clientGST: selectedCustomer.gst,
+        panNo: selectedCustomer.panNo
+      });
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -79,13 +247,12 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const total = formData.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
   const currencySymbol = currencies[formData.currency] || formData.currency;
 
-
   const handleSubmit = () => {
     onSubmit({ ...formData, total, currency: currencies[formData.currency] || formData.currency });
     onClose();
   };
-  
 
+  if (!isOpen) return null;
 
   return (
     <div className="modal">
@@ -95,46 +262,120 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         {/* Currency Dropdown */}
         <label>Currency:</label>
         <select name="currency" value={formData.currency} onChange={handleChange}>
-  {Object.entries(currencies || {}).map(([code, symbol]) => (
-    <option key={code} value={code}>{code} ({symbol})</option>
-  ))}
-</select>
-
-
+          {Object.entries(currencies || {}).map(([code, symbol]) => (
+            <option key={code} value={code}>{code} ({symbol})</option>
+          ))}
+        </select>
 
         <label>Invoice No:</label>
-        <input type="text" name="invoiceNo" value={formData.invoiceNo} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ fontWeight: "bold", marginRight: "4px" }}>OAM25-26GMO</span>
+          <input
+            type="text"
+            name="invoiceNoSuffix"
+            value={formData.invoiceNo.replace(/^OAM25-26GMO/, '')}
+            onChange={(e) => {
+              const suffix = e.target.value.replace(/\D/g, ''); // optional: only allow numbers
+              setFormData({ ...formData, invoiceNo: `OAM25-26GMO${suffix}` });
+            }}
+            placeholder="01"
+          />
+        </div>
 
         <label>Customer Name:</label>
-        <input type="text" name="customerName" value={formData.customerName} onChange={handleChange} />
+        <select 
+          name="customerName" 
+          value={formData.customerName} 
+          onChange={handleCustomerSelect}
+        >
+          <option value="">Select a customer</option>
+          {data.map((customer, index) => (
+            <option key={index} value={customer.name}>
+              {customer.name}
+            </option>
+          ))}
+        </select>
 
         <label>Address Line 1:</label>
-        <input type="text" name="address1" value={formData.address1} onChange={handleChange} />
+        <input 
+          type="text" 
+          name="address1" 
+          value={formData.address1} 
+          onChange={handleChange} 
+        />
 
         <label>Address Line 2:</label>
-        <input type="text" name="address2" value={formData.address2} onChange={handleChange} />
+        <input 
+          type="text" 
+          name="address2" 
+          value={formData.address2} 
+          onChange={handleChange} 
+        />
 
         <label>PIN Code:</label>
-        <input type="text" name="phone" value={formData.phone} onChange={handleChange} />
+        <input 
+          type="text" 
+          name="phone" 
+          value={formData.phone} 
+          onChange={handleChange} 
+        />
+
+        <label>PAN No:</label>
+        <input 
+          type="text" 
+          name="panNo" 
+          value={formData.panNo} 
+          onChange={handleChange} 
+        />
+
+        <label>GST No:</label>
+        <input 
+          type="text" 
+          name="clientGST" 
+          value={formData.clientGST} 
+          onChange={handleChange} 
+        />
 
         <label>Invoice Date:</label>
-        <input type="date" name="invoiceDate" value={formData.invoiceDate} onChange={handleChange} />
+        <input 
+          type="date" 
+          name="invoiceDate" 
+          value={formData.invoiceDate} 
+          onChange={handleChange} 
+        />
 
         <label>Due Date:</label>
-        <input type="date" name="dueDate" value={formData.dueDate} onChange={handleChange} />
-
-        <label>Client GST:</label>
-        <input type="text" name="clientGST" value={formData.clientGST} onChange={handleChange} />
+        <input 
+          type="date" 
+          name="dueDate" 
+          value={formData.dueDate} 
+          onChange={handleChange} 
+        />
 
         <h3>Add Invoice Items</h3>
         <label>Description:</label>
-        <input type="text" name="description" value={newItem.description} onChange={handleItemChange} />
+        <input 
+          type="text" 
+          name="description" 
+          value={newItem.description} 
+          onChange={handleItemChange} 
+        />
 
         <label>Validator Payout:</label>
-        <input type="text" name="validatorPayout" value={newItem.validatorPayout} onChange={handleItemChange} />
+        <input 
+          type="text" 
+          name="validatorPayout" 
+          value={newItem.validatorPayout} 
+          onChange={handleItemChange} 
+        />
 
         <label>Amount:</label>
-        <input type="number" name="amount" value={newItem.amount} onChange={handleItemChange} />
+        <input 
+          type="number" 
+          name="amount" 
+          value={newItem.amount} 
+          onChange={handleItemChange} 
+        />
 
         <button type="button" onClick={addItem}>Add Item</button>
 
@@ -166,7 +407,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         {/* Invoice Summary */}
         <h3>Invoice Summary</h3>
         <div>
-          <label>G.S.T. (%):</label>
+          <label>S.G.S.T. (%):</label>
           <input type="number" name="gstTax" value={formData.gstTax} onChange={handleChange} />
         </div>
         <div>
