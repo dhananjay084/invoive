@@ -348,10 +348,22 @@ const Invoice = () => {
                             <p>{invoiceData.customerName}</p>
                             <p>{invoiceData.address1}</p>
                             <p>{invoiceData.address2}</p>
-                            <p>{invoiceData.phone}</p>
-                            <p className="invoice-date">Pan No: {invoiceData.panNo}</p>
+                            {/* <p>{invoiceData.phone}</p> */}
+                            <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>Pincode:</p>
+      <p>{invoiceData.phone} </p>
+    </div>
+    <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>Pan No:</p>
+      <p>{invoiceData.panNo} {roundOff.toFixed(2)}</p>
+    </div>
+    <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>GSTIN:</p>
+      <p>{invoiceData.clientGST} </p>
+    </div>
+                            {/* <p className="invoice-date">Pan No: {invoiceData.panNo}</p>
 
-                            <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p>
+                            <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p> */}
 
                             
                         </div>
@@ -461,12 +473,36 @@ const Invoice = () => {
                     <footer className="payment-info">
                         {/* <h4>Payment Options</h4> */}
                         <h4>Company Bank Details</h4>
-                        <p>Bank Name: {company.bank.name}</p>
-                        <p>Account Name: {company.bank.accountHolder}</p>
-                        <p>Account Number: {company.bank.accountNo}</p>
-                        {company.bank.ifsc && <p>IFSC: {company.bank.ifsc}</p>}
-                        <p>Swift: {company.bank.swift}</p>
-                        <p>Bank Address: {company.bank.bankAddress}</p>
+                        <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Bank Name:</p>
+    <p>{company.bank.name}</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Account Name:</p>
+    <p>{company.bank.accountHolder}</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Account Number:</p>
+    <p>{company.bank.accountNo}</p>
+  </div>
+  {company.bank.ifsc &&
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>IFSC:</p>
+
+     <p>{company.bank.ifsc}</p>
+  </div>
+}
+<div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Swift:</p>
+
+     <p>{company.bank.swift}</p>
+  </div>
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Bank Address:</p>
+
+     <p>{company.bank.bankAddress}</p>
+  </div>
+  
                     </footer>
 
                     <div className='discliamer'>

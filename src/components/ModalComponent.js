@@ -268,33 +268,69 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         </select>
 
         <label>Invoice No:</label>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <span style={{ fontWeight: "bold", marginRight: "4px" }}>OAM25-26GMO</span>
-          <input
-            type="text"
-            name="invoiceNoSuffix"
-            value={formData.invoiceNo.replace(/^OAM25-26GMO/, '')}
-            onChange={(e) => {
-              const suffix = e.target.value.replace(/\D/g, ''); // optional: only allow numbers
-              setFormData({ ...formData, invoiceNo: `OAM25-26GMO${suffix}` });
-            }}
-            placeholder="01"
-          />
-        </div>
+<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+  <select 
+    value={formData.invoicePrefix || "OAM25-26GMO"} 
+    onChange={(e) => {
+      const prefix = e.target.value;
+      const suffix = formData.invoiceNo.replace(/^(OAM25-26GMO|HM_25\/26_)/, '');
+      setFormData({ 
+        ...formData, 
+        invoicePrefix: prefix,
+        invoiceNo: `${prefix}${suffix}`
+      });
+    }}
+    style={{ width: "150px" }}
+  >
+    <option value="OAM25-26GMO">OAM25-26GMO</option>
+    <option value="HM_25/26_">HM_25/26_</option>
+  </select>
+  <input
+    type="text"
+    name="invoiceNoSuffix"
+    value={formData.invoiceNo.replace(/^(OAM25-26GMO|HM_25\/26_)/, '')}
+    onChange={(e) => {
+      const suffix = e.target.value.replace(/\D/g, ''); // only allow numbers
+      const prefix = formData.invoicePrefix || "OAM25-26GMO";
+      setFormData({ 
+        ...formData, 
+        invoiceNo: `${prefix}${suffix}` 
+      });
+    }}
+    placeholder="01"
+    style={{ flex: 1 }}
+  />
+</div>
 
         <label>Customer Name:</label>
-        <select 
-          name="customerName" 
-          value={formData.customerName} 
-          onChange={handleCustomerSelect}
-        >
-          <option value="">Select a customer</option>
-          {data.map((customer, index) => (
-            <option key={index} value={customer.name}>
-              {customer.name}
-            </option>
-          ))}
-        </select>
+<input
+  list="customerOptions"
+  name="customerName"
+  value={formData.customerName}
+  onChange={(e) => {
+    handleChange(e); // Handle the change normally
+    // Also update other fields if the typed value matches a customer
+    const selectedCustomer = data.find(customer => 
+      customer.name.toLowerCase() === e.target.value.toLowerCase()
+    );
+    if (selectedCustomer) {
+      setFormData(prev => ({
+        ...prev,
+        address1: selectedCustomer.address1,
+        address2: selectedCustomer.address2,
+        phone: selectedCustomer.pincode,
+        clientGST: selectedCustomer.gst,
+        panNo: selectedCustomer.panNo
+      }));
+    }
+  }}
+  placeholder="Select or type a customer name"
+/>
+<datalist id="customerOptions">
+  {data.map((customer, index) => (
+    <option key={index} value={customer.name} />
+  ))}
+</datalist>
 
         <label>Address Line 1:</label>
         <input 
