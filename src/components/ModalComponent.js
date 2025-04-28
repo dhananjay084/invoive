@@ -118,6 +118,8 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     amount: "",
   });
 
+  const [editingIndex, setEditingIndex] = useState(null); // Add this line for edit functionality
+
   const [currencies, setCurrencies] = useState({});
 
   useEffect(() => {
@@ -230,19 +232,19 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     setNewItem({ ...newItem, [e.target.name]: e.target.value });
   };
 
-  const addItem = () => {
-    if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
-      alert("Please fill all item fields before adding.");
-      return;
-    }
+  // const addItem = () => {
+  //   if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
+  //     alert("Please fill all item fields before adding.");
+  //     return;
+  //   }
 
-    setFormData({
-      ...formData,
-      items: [...formData.items, { ...newItem, amount: parseFloat(newItem.amount) }],
-    });
+  //   setFormData({
+  //     ...formData,
+  //     items: [...formData.items, { ...newItem, amount: parseFloat(newItem.amount) }],
+  //   });
 
-    setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
-  };
+  //   setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
+  // };
 
   const total = formData.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
   const currencySymbol = currencies[formData.currency] || formData.currency;
@@ -260,6 +262,56 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     });
     onClose();
   };
+  const addItem = () => {
+    if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
+      alert("Please fill all item fields before adding.");
+      return;
+    }
+
+    if (editingIndex !== null) {
+      // Update existing item
+      const updatedItems = [...formData.items];
+      updatedItems[editingIndex] = { ...newItem, amount: parseFloat(newItem.amount) };
+      setFormData({
+        ...formData,
+        items: updatedItems,
+      });
+      setEditingIndex(null);
+    } else {
+      // Add new item
+      setFormData({
+        ...formData,
+        items: [...formData.items, { ...newItem, amount: parseFloat(newItem.amount) }],
+      });
+    }
+
+    setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
+  };
+
+  // Add these new functions for edit functionality
+  const editItem = (index) => {
+    const itemToEdit = formData.items[index];
+    setNewItem({
+      description: itemToEdit.description,
+      validatorPayout: itemToEdit.validatorPayout,
+      hsnSac: itemToEdit.hsnSac || "",
+      amount: itemToEdit.amount.toString(),
+    });
+    setEditingIndex(index);
+  };
+
+  const deleteItem = (index) => {
+    const updatedItems = formData.items.filter((_, i) => i !== index);
+    setFormData({
+      ...formData,
+      items: updatedItems,
+    });
+    if (editingIndex === index) {
+      setEditingIndex(null);
+      setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -421,32 +473,52 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           onChange={handleItemChange} 
         />
 
-        <button type="button" onClick={addItem}>Add Item</button>
+<button type="button" onClick={addItem}>
+    {editingIndex !== null ? "Update Item" : "Add Item"}
+  </button>
+  {editingIndex !== null && (
+    <button 
+      type="button" 
+      onClick={() => {
+        setEditingIndex(null);
+        setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
+      }}
+      style={{ marginLeft: "10px" }}
+    >
+      Cancel Edit
+    </button>
+  )}
 
         {/* Display Added Items */}
         {formData.items.length > 0 && (
-          <>
-            <h3>Added Items</h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Description</th>
-                  <th>Validator Payout</th>
-                  <th>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {formData.items.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.description}</td>
-                    <td>{item.validatorPayout}</td>
-                    <td>{currencySymbol} {item.amount.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
+    <>
+      <h3>Added Items</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Description</th>
+            <th>Validator Payout</th>
+            <th>Amount</th>
+            <th>Actions</th> {/* Add this column */}
+          </tr>
+        </thead>
+        <tbody>
+          {formData.items.map((item, index) => (
+            <tr key={index}>
+              <td>{item.description}</td>
+              <td>{item.validatorPayout}</td>
+              <td>{currencySymbol} {item.amount.toFixed(2)}</td>
+              <td>
+                <button onClick={() => editItem(index)}>Edit</button>
+                <button onClick={() => deleteItem(index)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  )}
+
 
         {/* Invoice Summary */}
         <h3>Invoice Summary</h3>
