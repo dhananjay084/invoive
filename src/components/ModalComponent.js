@@ -247,11 +247,19 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const total = formData.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
   const currencySymbol = currencies[formData.currency] || formData.currency;
 
+  // const handleSubmit = () => {
+  //   onSubmit({ ...formData, total, currency: currencies[formData.currency] || formData.currency });
+  //   onClose();
+  // };
   const handleSubmit = () => {
-    onSubmit({ ...formData, total, currency: currencies[formData.currency] || formData.currency });
+    onSubmit({ 
+      ...formData, 
+      total,
+      currency: formData.currency, // This will be the currency code (e.g., "USD")
+      currencySymbol: currencies[formData.currency] || formData.currency // This will be the symbol (e.g., "$")
+    });
     onClose();
   };
-
   if (!isOpen) return null;
 
   return (
