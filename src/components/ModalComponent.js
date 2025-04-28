@@ -116,7 +116,8 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     validatorPayout: "",
     hsnSac: "",
     amount: "",
-  });
+    validationNo: "" // Add this field
+});
 
   const [editingIndex, setEditingIndex] = useState(null); // Add this line for edit functionality
 
@@ -230,7 +231,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
 
   const handleItemChange = (e) => {
     setNewItem({ ...newItem, [e.target.name]: e.target.value });
-  };
+};
 
   // const addItem = () => {
   //   if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
@@ -464,7 +465,14 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           value={newItem.validatorPayout} 
           onChange={handleItemChange} 
         />
-
+<label>Validation No (optional):</label>
+<input 
+    type="text" 
+    name="validationNo" 
+    value={newItem.validationNo} 
+    onChange={handleItemChange} 
+    placeholder="Optional validation number"
+/>
         <label>Amount:</label>
         <input 
           type="number" 
