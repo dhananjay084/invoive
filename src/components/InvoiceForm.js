@@ -603,7 +603,7 @@ const Invoice = () => {
   </div>
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>3</p>
-    <p>If The Payment Is Not Received Within 2months, 1% Interest Penalty Will Be Charged On The Invoice Amount.</p>
+    <p>If The Payment Is Not Received Within Due Date, 1% Interest Penalty Will Be Charged On The Invoice Amount.</p>
   </div>
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>4</p>
