@@ -99,6 +99,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     customerName: "",
     address1: "",
     address2: "",
+    address3:'',
     phone: "",
     invoiceDate: "",
     dueDate: "",
@@ -218,6 +219,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         customerName: selectedCustomer.name,
         address1: selectedCustomer.address1,
         address2: selectedCustomer.address2,
+        address3: "",
         phone: selectedCustomer.pincode,
         clientGST: selectedCustomer.gst,
         panNo: selectedCustomer.panNo
@@ -408,7 +410,14 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           value={formData.address2} 
           onChange={handleChange} 
         />
-
+ <label>Address Line 3:</label>
+        <input 
+          type="text" 
+          name="address3" 
+          value={formData.address3} 
+          onChange={handleChange} 
+          placeholder="Optional additional address information"
+        />
         <label>PIN Code:</label>
         <input 
           type="text" 

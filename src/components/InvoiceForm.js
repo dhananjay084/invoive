@@ -139,6 +139,7 @@ const Invoice = () => {
     const handleModalSubmit = (data) => {
         setInvoiceData({
           ...data,
+          address3: data.address3 || "",
           currency: data.currency, // This will be the code (e.g., "USD")
           currencySymbol: data.currencySymbol // This will be the symbol (e.g., "$")
         });
@@ -403,23 +404,25 @@ const Invoice = () => {
                     </header>
 
                     <section className="bill-to">
-                        <div>
+                        <div style={{maxWidth:'60%'}}>
                             <h3>Bill To:</h3>
                             <p>{invoiceData.customerName}</p>
                             <p>{invoiceData.address1}</p>
                             <p>{invoiceData.address2}</p>
+                            {invoiceData.address3 && <p>{invoiceData.address3}</p>}
+
                             {/* <p>{invoiceData.phone}</p> */}
                             <div className="summary-row">
-      <p style={{paddingRight:'5px'}}>Pincode:</p>
-      <p>{invoiceData.phone} </p>
+      <p style={{paddingRight:'5px',fontSize:'16px'}}>Pincode:</p>
+      <p style={{fontSize:'16px'}}>{invoiceData.phone} </p>
     </div>
     <div className="summary-row">
-      <p style={{paddingRight:'5px'}}>Pan No:</p>
-      <p>{invoiceData.panNo}</p>
+      <p style={{paddingRight:'5px',fontSize:'16px'}}>Pan No:</p>
+      <p style={{fontSize:'16px'}}>{invoiceData.panNo}</p>
     </div>
     <div className="summary-row">
-      <p style={{paddingRight:'5px'}} >GSTIN:</p>
-      <p>{invoiceData.clientGST} </p>
+      <p style={{paddingRight:'5px',fontSize:'16px'}} >GSTIN:</p>
+      <p style={{fontSize:'16px'}}>{invoiceData.clientGST} </p>
     </div>
                             {/* <p className="invoice-date">Pan No: {invoiceData.panNo}</p>
 
@@ -469,12 +472,13 @@ const Invoice = () => {
             <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{item.description}</td>
-                <td>{item.validatorPayout}</td>
-                <td>998361</td>
-                {/* Conditionally show Validation No cell */}
                 {invoiceData.items.some(i => i.validationNo) && (
                     <td>{item.validationNo || '-'}</td>
                 )}
+                <td>{item.validatorPayout}</td>
+                <td>998361</td>
+                {/* Conditionally show Validation No cell */}
+               
                 <td>{item.amount}</td>
             </tr>
         ))}
@@ -527,7 +531,7 @@ const Invoice = () => {
     </div>
 
     <div className="summary-row">
-      <p>Round Off:</p>
+      <p style={{paddingBottom:'5px'}}>Round Off:</p>
       <p>{invoiceData.currency} {roundOff.toFixed(2)}</p>
     </div>
 
