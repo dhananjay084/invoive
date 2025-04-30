@@ -453,36 +453,35 @@ const Invoice = () => {
                     </section>
 
        {/* Invoice Items Table */}
-<table className="invoice-table">
-    <thead>
-        <tr>
-            <th style={{ width: '5%' }}>S. No</th>
-            <th style={{ width: '40%' }}>Description</th>
-            <th style={{ width: '15%' }}>Payout</th>
-            <th style={{ width: '10%' }}>HSN/SAC</th>
-            {/* Conditionally show Validation No column */}
-            {invoiceData.items.some(item => item.validationNo) && (
-                <th style={{ width: '15%' }}>Validation No</th>
-            )}
-            <th style={{ width: '15%' }}>Amount</th>
-        </tr>
-    </thead>
-    <tbody>
-        {invoiceData.items.map((item, index) => (
-            <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{item.description}</td>
-                {invoiceData.items.some(i => i.validationNo) && (
-                    <td>{item.validationNo || '-'}</td>
-                )}
-                <td>{item.validatorPayout}</td>
-                <td>998361</td>
-                {/* Conditionally show Validation No cell */}
-               
-                <td>{item.amount}</td>
-            </tr>
-        ))}
-    </tbody>
+       <table className="invoice-table">
+  <thead>
+    <tr>
+      <th style={{ width: '5%' }}>S. No</th>
+      <th style={{ width: '40%' }}>Description</th>
+      {invoiceData.items.some(item => item.validationNo) && (
+        <th style={{ width: '15%' }}>Validation No</th>
+      )}
+      <th style={{ width: '15%' }}>Payout</th>
+      <th style={{ width: '10%' }}>HSN/SAC</th>
+    
+      <th style={{ width: '15%' }}>Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    {invoiceData.items.map((item, index) => (
+      <tr key={index}>
+        <td>{index + 1}</td>
+        <td>{item.description}</td>
+        {invoiceData.items.some(i => i.validationNo) && (
+          <td>{item.validationNo || '-'}</td>
+        )}
+        <td>{item.validatorPayout}</td>
+        <td>{item.hsnSac}</td> {/* Display the HSN/SAC value */}
+      
+        <td>{invoiceData.currencySymbol} {item.amount.toFixed(2)}</td>
+      </tr>
+    ))}
+  </tbody>
 </table>
 
                     <div className="total_div">

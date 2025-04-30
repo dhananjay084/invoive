@@ -267,14 +267,20 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   };
   const addItem = () => {
     if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
-      alert("Please fill all item fields before adding.");
+      alert("Please fill all required item fields before adding.");
       return;
     }
-
+    const itemToAdd = {
+      description: newItem.description,
+      validatorPayout: newItem.validatorPayout,
+      hsnSac: newItem.hsnSac || "998361", // Use default value if empty
+      amount: parseFloat(newItem.amount),
+      validationNo: newItem.validationNo || ''
+    };
     if (editingIndex !== null) {
       // Update existing item
       const updatedItems = [...formData.items];
-      updatedItems[editingIndex] = { ...newItem, amount: parseFloat(newItem.amount) };
+      updatedItems[editingIndex] = itemToAdd;
       setFormData({
         ...formData,
         items: updatedItems,
@@ -284,14 +290,18 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
       // Add new item
       setFormData({
         ...formData,
-        items: [...formData.items, { ...newItem, amount: parseFloat(newItem.amount) }],
+        items: [...formData.items, itemToAdd],
       });
     }
-
-    setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "" });
+    setNewItem({ 
+      description: "", 
+      validatorPayout: "", 
+      hsnSac: "", 
+      amount: "",
+      validationNo: "" 
+    });
   };
 
-  // Add these new functions for edit functionality
   const editItem = (index) => {
     const itemToEdit = formData.items[index];
     setNewItem({
@@ -299,6 +309,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
       validatorPayout: itemToEdit.validatorPayout,
       hsnSac: itemToEdit.hsnSac || "",
       amount: itemToEdit.amount.toString(),
+      validationNo: itemToEdit.validationNo || ""
     });
     setEditingIndex(index);
   };
@@ -466,7 +477,14 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           value={newItem.description} 
           onChange={handleItemChange} 
         />
-
+<label>HSN/SAC Code:</label>
+<input 
+  type="text" 
+  name="hsnSac" 
+  value={newItem.hsnSac} 
+  onChange={handleItemChange} 
+  placeholder="Enter HSN/SAC code"
+/>
         <label>Validator Payout:</label>
         <input 
           type="text" 
