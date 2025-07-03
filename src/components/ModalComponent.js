@@ -109,7 +109,9 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     igstTax: '',
     cgstTax: '',
     currency: "USD",
-    panNo: ""
+    panNo: "",
+    heading:'',
+    headingText:''
   });
 
   const [newItem, setNewItem] = useState({
@@ -466,6 +468,20 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
           type="date" 
           name="dueDate" 
           value={formData.dueDate} 
+          onChange={handleChange} 
+        />
+         <label>RO/PO:</label>
+        <input 
+          type="text" 
+          name="heading" 
+          value={formData.heading} 
+          onChange={handleChange} 
+        />
+         <label>RO/PO Value:</label>
+        <input 
+          type="text" 
+          name="headingText" 
+          value={formData.headingText} 
           onChange={handleChange} 
         />
 

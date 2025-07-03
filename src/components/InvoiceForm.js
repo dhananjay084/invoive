@@ -447,6 +447,10 @@ const Invoice = () => {
                                     <td>Due Date:</td>
                                     <td>{invoiceData.dueDate}</td>
                                 </tr>
+                                <tr>
+                                    <td>{invoiceData.heading}</td>
+                                    <td>{invoiceData.headingText}</td>
+                                </tr>
                             </table>
                       
                         </div>
