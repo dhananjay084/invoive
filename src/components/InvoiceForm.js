@@ -23,7 +23,7 @@ const companyDetails = {
             bankAddress: "Ground Floor, Near Allahabad Bank, Purana Bazar, Gomoh, Jharkhand 828401",
             MICRCode : "826211007",
             IBAN : "",
-USDTAddress :- "TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
+USDTAddress :"TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
         },
         img: OctaAds,
         sign: OctSign,
