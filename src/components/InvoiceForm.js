@@ -20,7 +20,10 @@ const companyDetails = {
             accountNo: "924020022838877",
             ifsc: "UTIB0003792",
             swift: "AXISINBB172",
-            bankAddress: "Ground Floor, Near Allahabad Bank, Purana Bazar, Gomoh, Jharkhand 828401"
+            bankAddress: "Ground Floor, Near Allahabad Bank, Purana Bazar, Gomoh, Jharkhand 828401",
+            MICRCode : "826211007",
+            IBAN : "",
+USDTAddress :- "TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
         },
         img: OctaAds,
         sign: OctSign,
@@ -35,7 +38,10 @@ const companyDetails = {
             accountNo: "9422833590",
             iban: "AE560860000009422833590",
             swift: "WIOBAEAD",
-            bankAddress: "Sharjah Media City Free Zone, Sharjah, UAE"
+            bankAddress: "Sharjah Media City Free Zone, Sharjah, UAE",
+             MICRCode : "",
+            IBAN : "AE560860000009422833590",
+USDTAddress :"TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
         },
         img: HikeMedia,
         sign: HikeOct,
@@ -574,6 +580,28 @@ const Invoice = () => {
 
      <p>{company.bank.swift}</p>
   </div>
+  {company.bank.MICRCode &&
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>MICR Code:</p>
+
+     <p>{company.bank.MICRCode}</p>
+  </div>
+}
+{company.bank.IBAN &&
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>IBAN:</p>
+
+     <p>{company.bank.IBAN}</p>
+  </div>
+}
+{company.bank.USDTAddress ?
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>USDT Address:</p>
+
+     <p>{company.bank.USDTAddress}</p>
+  </div>
+  :''
+}
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Bank Address:</p>
 
