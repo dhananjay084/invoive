@@ -73,63 +73,51 @@ const Invoice = () => {
         taxRate: 0
     });
     const [bgLoaded, setBgLoaded] = useState(false);
-    const currencyWords = {
-        USD: "dollars",
-        EUR: "euros",
-        GBP: "pounds",
-        INR: "rupees",
-        JPY: "yen",
-        AUD: "australian dollars",
-        CAD: "canadian dollars",
-        CHF: "swiss francs",
-        CNY: "yuan",
-        SEK: "swedish kronor",
-        NZD: "new zealand dollars",
-        SGD: "singapore dollars",
-        HKD: "hong kong dollars",
-        KRW: "won",
-        MXN: "mexican pesos",
-        BRL: "brazilian reais",
-        RUB: "rubles",
-        ZAR: "rands",
-        AED: "dirhams",
-        SAR: "riyals",
-        TRY: "turkish lira",
-        IDR: "rupiah",
-        MYR: "malaysian ringgit",
-        THB: "baht",
-        PHP: "philippine pesos",
-        PLN: "zloty",
-        DKK: "danish kroner",
-        NOK: "norwegian kroner",
-        ILS: "shekels",
-        CZK: "czech koruna",
-        HUF: "forints",
-        RON: "lei",
-        BGN: "leva",
-        HRK: "kuna",
-        ISK: "icelandic kronur",
-        
-        // Special cases for singular/plural forms
-        // (Some currencies don't change in plural form)
-        JPY: "yen",          // Same in singular and plural
-        CNY: "yuan",         // Same in singular and plural
-        KRW: "won",          // Same in singular and plural
-        THB: "baht",         // Same in singular and plural
-        IDR: "rupiah",       // Same in singular and plural
-        TRY: "turkish lira", // Same in singular and plural
-        
-        // Add more as needed
-      };
-      
+   const currencyWords = {
+  USD: "dollars",
+  EUR: "euros",
+  GBP: "pounds",
+  INR: "rupees",
+  JPY: "yen",
+  AUD: "australian dollars",
+  CAD: "canadian dollars",
+  CHF: "swiss francs",
+  CNY: "yuan",
+  SEK: "swedish kronor",
+  NZD: "new zealand dollars",
+  SGD: "singapore dollars",
+  HKD: "hong kong dollars",
+  KRW: "won",
+  MXN: "mexican pesos",
+  BRL: "brazilian reais",
+  RUB: "rubles",
+  ZAR: "rands",
+  AED: "dirhams",
+  SAR: "riyals",
+  TRY: "turkish lira",
+  IDR: "rupiah",
+  MYR: "malaysian ringgit",
+  THB: "baht",
+  PHP: "philippine pesos",
+  PLN: "zloty",
+  DKK: "danish kroner",
+  NOK: "norwegian kroner",
+  ILS: "shekels",
+  CZK: "czech koruna",
+  HUF: "forints",
+  RON: "lei",
+  BGN: "leva",
+  HRK: "kuna",
+  ISK: "icelandic kronur"
+};
       const getCurrencyWord = (currencyCode) => {
         return currencyWords[currencyCode] || currencyCode;
       };
-    useEffect(() => {
-        const img = new Image();
-        img.src = company.img;
-        img.onload = () => setBgLoaded(true);
-    }, [selectedCompany]);
+   useEffect(() => {
+    const img = new Image();
+    img.src = company.img;
+    img.onload = () => setBgLoaded(true);
+}, [company.img]);
     const invoiceRef = useRef(); // Reference for capturing the invoice div
 
     const handleCompanyChange = (e) => {
@@ -282,7 +270,7 @@ const Invoice = () => {
         const roundedTotal = roundOff > 0.40 ? Math.ceil(totalBeforeRounding) : Math.floor(totalBeforeRounding);
         return { totalBeforeRounding, roundOff, roundedTotal };
     };
-    const { totalBeforeRounding, roundOff, roundedTotal } = calculateTotalAmount();
+    const {  roundOff, roundedTotal } = calculateTotalAmount();
     const handleSign = () => {
         const now = new Date();
     
@@ -405,7 +393,7 @@ const Invoice = () => {
                         <QRCode value="Invoice Details" size={70} />
                     </div> */}
                         <div className='header-logo'>
-                            <img src={company.img} />
+                          <img src={company.img} alt="Company Logo" />
                         </div>
                     </header>
 
