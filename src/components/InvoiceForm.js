@@ -110,6 +110,8 @@ const Invoice = () => {
   HRK: "kuna",
   ISK: "icelandic kronur"
 };
+    const company = companyDetails[selectedCompany];
+    
       const getCurrencyWord = (currencyCode) => {
         return currencyWords[currencyCode] || currencyCode;
       };
@@ -150,7 +152,6 @@ const Invoice = () => {
 
 
 
-    const company = companyDetails[selectedCompany];
 
     // Function to download the invoice as PDF
     // const handleDownloadPDF = () => {
