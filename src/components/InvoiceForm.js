@@ -6,7 +6,7 @@ import HikeMedia from "../logo2.jpeg";
 import OctaAds from "../logo.png";
 import OctSign from "../SignOct.jpeg";
 import HikeOct from "../SignHike.jpeg";
-import { toWords } from "number-to-words";
+// import { toWords } from "number-to-words";
 
 const companyDetails = {
     OctaAds: {
