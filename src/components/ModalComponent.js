@@ -211,23 +211,23 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     fetchCurrencies();
   }, []);
 
-  const handleCustomerSelect = (e) => {
-    const selectedCustomerName = e.target.value;
-    const selectedCustomer = data.find(customer => customer.name === selectedCustomerName);
+  // const handleCustomerSelect = (e) => {
+  //   const selectedCustomerName = e.target.value;
+  //   const selectedCustomer = data.find(customer => customer.name === selectedCustomerName);
     
-    if (selectedCustomer) {
-      setFormData({
-        ...formData,
-        customerName: selectedCustomer.name,
-        address1: selectedCustomer.address1,
-        address2: selectedCustomer.address2,
-        address3: "",
-        phone: selectedCustomer.pincode,
-        clientGST: selectedCustomer.gst,
-        panNo: selectedCustomer.panNo
-      });
-    }
-  };
+  //   if (selectedCustomer) {
+  //     setFormData({
+  //       ...formData,
+  //       customerName: selectedCustomer.name,
+  //       address1: selectedCustomer.address1,
+  //       address2: selectedCustomer.address2,
+  //       address3: "",
+  //       phone: selectedCustomer.pincode,
+  //       clientGST: selectedCustomer.gst,
+  //       panNo: selectedCustomer.panNo
+  //     });
+  //   }
+  // };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
