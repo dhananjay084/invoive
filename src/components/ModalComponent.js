@@ -346,10 +346,10 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         <label>Invoice No:</label>
 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
   <select 
-    value={formData.invoicePrefix || "OAM25-26GMO"} 
+    value={formData.invoicePrefix || "OAM26-27GMO"} 
     onChange={(e) => {
       const prefix = e.target.value;
-      const suffix = formData.invoiceNo.replace(/^(OAM25-26GMO|HM_25\/26_)/, '');
+      const suffix = formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '');
       setFormData({ 
         ...formData, 
         invoicePrefix: prefix,
@@ -358,16 +358,16 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     }}
     style={{ width: "150px" }}
   >
-    <option value="OAM25-26GMO">OAM25-26GMO</option>
-    <option value="HM_25/26_">HM_25/26_</option>
+    <option value="OAM26-27GMO">OAM26-27GMO</option>
+    <option value="HM_26/27_">HM_26/27_</option>
   </select>
   <input
     type="text"
     name="invoiceNoSuffix"
-    value={formData.invoiceNo.replace(/^(OAM25-26GMO|HM_25\/26_)/, '')}
+    value={formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '')}
     onChange={(e) => {
       const suffix = e.target.value.replace(/\D/g, ''); // only allow numbers
-      const prefix = formData.invoicePrefix || "OAM25-26GMO";
+      const prefix = formData.invoicePrefix || "OAM26-27GMO";
       setFormData({ 
         ...formData, 
         invoiceNo: `${prefix}${suffix}` 
