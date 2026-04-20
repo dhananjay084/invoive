@@ -11,8 +11,8 @@ import HikeOct from "../SignHike.jpeg";
 const companyDetails = {
     OctaAds: {
         name: "OctaAds Media Pvt. Ltd.",
-        address: "C/o Siraj Khan, 1st Floor, Loco Bazar, Near Loco Bazar Masjid, Gomoh, Dhanbad, Jharkhand - 828401",
-        gst: "20AAECO3028M1ZN",
+        address: "Coworkkeys – Golf Course Road, 2nd Floor, Plot No. 38, Near Vatika Tower, Saraswati Kunj, Sector 54, Gurugram, Haryana 122003",
+        gst: "06AAECO3028M1ZD",
         CIN: "U73100JH2024PTC022034",
         bank: {
             name: "Axis Bank",
