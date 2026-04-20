@@ -11,7 +11,7 @@ import HikeOct from "../SignHike.jpeg";
 const companyDetails = {
     OctaAds: {
         name: "OctaAds Media Pvt. Ltd.",
-        address: "Coworkkeys – Golf Course Road, 2nd Floor, Plot No. 38, Near Vatika Tower, Saraswati Kunj, Sector 54, Gurugram, Haryana 122003",
+        address: "Coworkkeys Building, Plot No. 38 Second Floor ,Saraswati Kunj ,Golf Course Road ,Sector 54 Gurugram, Haryana 122001",
         gst: "06AAECO3028M1ZD",
         CIN: "U73100JH2024PTC022034",
         bank: {
