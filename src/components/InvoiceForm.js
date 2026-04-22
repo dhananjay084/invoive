@@ -48,6 +48,34 @@ USDTAddress :"TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
         disclaimer:'We declare that this inovice shows the actual price of the goods described and that all particulars are true and corrent.'
     }
 };
+
+const hikeMediaBanks = {
+    WIO: companyDetails.HikeMedia.bank,
+    EmiratesNBD_AED: {
+        name: "Emirates NBD Bank PJSC",
+        bankAddress: "Baniyas Road, Deira, P O Box 777, Dubai, UAE",
+        swift: "EBILAEADXXX",
+        swiftAlt: "EBILAEAD",
+        routingCode: "302620122",
+        customerNumber: "59482062",
+        accountHolder: "Hike Media LLC",
+        currency: "AED",
+        accountNo: "1015948206201",
+        IBAN: "AE250260001015948206201"
+    },
+    EmiratesNBD_USD: {
+        name: "Emirates NBD Bank PJSC",
+        bankAddress: "Baniyas Road, Deira, P O Box 777, Dubai, UAE",
+        swift: "EBILAEADXXX",
+        swiftAlt: "EBILAEAD",
+        routingCode: "302620122",
+        customerNumber: "59482062",
+        accountHolder: "Hike Media LLC",
+        currency: "USD",
+        accountNo: "1025948206204",
+        IBAN: "AE760260001025948206204"
+    }
+};
 // const uploadImage = async (imageData) => {
 // Ideally, this should upload to Firebase/AWS S3 and return the hosted URL.
 // For testing, we use a placeholder method.
@@ -59,6 +87,7 @@ USDTAddress :"TVUeeKQLQ3XgKaapTbSYhaK8FMBPanPva2"
 // };
 const Invoice = () => {
     const [selectedCompany, setSelectedCompany] = useState("OctaAds");
+    const [selectedHikeBank, setSelectedHikeBank] = useState("WIO");
     const [modalOpen, setModalOpen] = useState(false);
     const [signatureDate, setSignatureDate] = useState(null);
     const [invoiceData, setInvoiceData] = useState({
@@ -111,6 +140,10 @@ const Invoice = () => {
   ISK: "icelandic kronur"
 };
     const company = companyDetails[selectedCompany];
+    const bankDetails =
+        selectedCompany === "HikeMedia"
+            ? hikeMediaBanks[selectedHikeBank] || hikeMediaBanks.WIO
+            : company.bank;
     
       const getCurrencyWord = (currencyCode) => {
         return currencyWords[currencyCode] || currencyCode;
@@ -123,7 +156,11 @@ const Invoice = () => {
     const invoiceRef = useRef(); // Reference for capturing the invoice div
 
     const handleCompanyChange = (e) => {
-        setSelectedCompany(e.target.value);
+        const nextCompany = e.target.value;
+        setSelectedCompany(nextCompany);
+        if (nextCompany !== "HikeMedia") {
+            setSelectedHikeBank("WIO");
+        }
     };
 
     // const handleModalSubmit = (data) => {
@@ -144,6 +181,7 @@ const Invoice = () => {
     const calculateSubtotal = () => {
         return invoiceData.items.reduce((total, item) => total + parseFloat(item.amount || 0), 0);
     };
+    const isHMInvoice = (invoiceData.invoicePrefix || invoiceData.invoiceNo || "").startsWith("HM_");
 
     // const calculateTaxAmount = () => {
     //     return (calculateSubtotal() * invoiceData.taxRate) / 100;
@@ -251,15 +289,16 @@ const Invoice = () => {
         const subtotal = calculateSubtotal();
         let totalTax = 0;
 
-        if (invoiceData.gstTax) {
-            totalTax += calculateTax(subtotal, invoiceData.gstTax);
+        if (isHMInvoice) {
+            if (invoiceData.vatTax) {
+                totalTax += calculateTax(subtotal, invoiceData.vatTax);
+            }
+            return totalTax;
         }
-        if (invoiceData.igstTax) {
-            totalTax += calculateTax(subtotal, invoiceData.igstTax);
-        }
-        if (invoiceData.cgstTax) {
-            totalTax += calculateTax(subtotal, invoiceData.cgstTax);
-        }
+
+        if (invoiceData.gstTax) totalTax += calculateTax(subtotal, invoiceData.gstTax);
+        if (invoiceData.igstTax) totalTax += calculateTax(subtotal, invoiceData.igstTax);
+        if (invoiceData.cgstTax) totalTax += calculateTax(subtotal, invoiceData.cgstTax);
 
         return totalTax;
     };
@@ -365,6 +404,16 @@ const Invoice = () => {
                     <option value="OctaAds">OctaAds Media</option>
                     <option value="HikeMedia">Hike Media</option>
                 </select>
+                {selectedCompany === "HikeMedia" && (
+                    <>
+                        <label style={{ marginLeft: 12 }}>Select Bank: </label>
+                        <select value={selectedHikeBank} onChange={(e) => setSelectedHikeBank(e.target.value)}>
+                            <option value="WIO">WIO Bank</option>
+                            <option value="EmiratesNBD_AED">Emirates NBD (AED)</option>
+                            <option value="EmiratesNBD_USD">Emirates NBD (USD)</option>
+                        </select>
+                    </>
+                )}
                 <button onClick={() => setModalOpen(true)}>Add Values</button>
                 <button onClick={handleDownloadPDF} className="download-btn">Download Invoice</button>
                 <button onClick={handleSign}>Sign</button>
@@ -407,18 +456,20 @@ const Invoice = () => {
                             {invoiceData.address3 && <p>{invoiceData.address3}</p>}
 
                             {/* <p>{invoiceData.phone}</p> */}
-                            <div className="summary-row">
-      <p style={{paddingRight:'5px',fontSize:'16px'}}>Pincode:</p>
-      <p style={{fontSize:'16px'}}>{invoiceData.phone} </p>
-    </div>
-    <div className="summary-row">
-      <p style={{paddingRight:'5px',fontSize:'16px'}}>Pan No:</p>
-      <p style={{fontSize:'16px'}}>{invoiceData.panNo}</p>
-    </div>
-    <div className="summary-row">
-      <p style={{paddingRight:'5px',fontSize:'16px'}} >GSTIN:</p>
-      <p style={{fontSize:'16px'}}>{invoiceData.clientGST} </p>
-    </div>
+	    <div className="summary-row">
+	      <p style={{paddingRight:'5px',fontSize:'16px'}}>Pincode:</p>
+	      <p style={{fontSize:'16px'}}>{invoiceData.phone} </p>
+	    </div>
+        {!isHMInvoice && (
+          <div className="summary-row">
+            <p style={{paddingRight:'5px',fontSize:'16px'}}>Pan No:</p>
+            <p style={{fontSize:'16px'}}>{invoiceData.panNo}</p>
+          </div>
+        )}
+	    <div className="summary-row">
+	      <p style={{paddingRight:'5px',fontSize:'16px'}} >{isHMInvoice ? "VAT No:" : "GSTIN:"}</p>
+	      <p style={{fontSize:'16px'}}>{invoiceData.clientGST} </p>
+	    </div>
                             {/* <p className="invoice-date">Pan No: {invoiceData.panNo}</p>
 
                             <p className="invoice-date">GSTIN: {invoiceData.clientGST}</p> */}
@@ -438,15 +489,17 @@ const Invoice = () => {
                                     <td>{invoiceData.invoiceDate}</td>
                                 </tr>
                                 
-                                <tr>
-                                    <td>Due Date:</td>
-                                    <td>{invoiceData.dueDate}</td>
-                                </tr>
-                                <tr>
-                                    <td>{invoiceData.heading}</td>
-                                    <td>{invoiceData.headingText}</td>
-                                </tr>
-                            </table>
+	                                <tr>
+	                                    <td>Due Date:</td>
+	                                    <td>{invoiceData.dueDate}</td>
+	                                </tr>
+                                    {!isHMInvoice && (invoiceData.heading || invoiceData.headingText) && (
+	                                  <tr>
+	                                    <td>{invoiceData.heading}</td>
+	                                    <td>{invoiceData.headingText}</td>
+	                                  </tr>
+                                    )}
+	                            </table>
                       
                         </div>
                     </section>
@@ -498,30 +551,37 @@ const Invoice = () => {
   
 
   <div className="invoice-summary-table">
-  <div className="summary-row">
-    <p>Taxable Amt:</p>
-    <p>{invoiceData.currency} {calculateSubtotal().toFixed(2)}</p>
-  </div>
-    {invoiceData.gstTax && (
-      <div className="summary-row">
-        <p>SGST ({invoiceData.gstTax}%):</p>
-        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
-      </div>
-    )}
+	  <div className="summary-row">
+	    <p>Taxable Amt:</p>
+	    <p>{invoiceData.currency} {calculateSubtotal().toFixed(2)}</p>
+	  </div>
+        {isHMInvoice && invoiceData.vatTax && (
+          <div className="summary-row">
+            <p>VAT ({invoiceData.vatTax}%):</p>
+            <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.vatTax).toFixed(2)}</p>
+          </div>
+        )}
 
-    {invoiceData.igstTax && (
-      <div className="summary-row">
-        <p>IGST ({invoiceData.igstTax}%):</p>
-        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
-      </div>
-    )}
+	    {!isHMInvoice && invoiceData.gstTax && (
+	      <div className="summary-row">
+	        <p>SGST ({invoiceData.gstTax}%):</p>
+	        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.gstTax).toFixed(2)}</p>
+	      </div>
+	    )}
 
-    {invoiceData.cgstTax && (
-      <div className="summary-row">
-        <p>CGST ({invoiceData.cgstTax}%):</p>
-        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
-      </div>
-    )}
+	    {!isHMInvoice && invoiceData.igstTax && (
+	      <div className="summary-row">
+	        <p>IGST ({invoiceData.igstTax}%):</p>
+	        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.igstTax).toFixed(2)}</p>
+	      </div>
+	    )}
+
+	    {!isHMInvoice && invoiceData.cgstTax && (
+	      <div className="summary-row">
+	        <p>CGST ({invoiceData.cgstTax}%):</p>
+	        <p>{invoiceData.currency} {calculateTax(calculateSubtotal(), invoiceData.cgstTax).toFixed(2)}</p>
+	      </div>
+	    )}
 
     <div className="summary-row">
       <p>Tax Amount:</p>
@@ -547,54 +607,78 @@ const Invoice = () => {
                         <h4>Company Bank Details</h4>
                         <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Bank Name:</p>
-    <p>{company.bank.name}</p>
+    <p>{bankDetails.name}</p>
   </div>
+  {bankDetails.currency && (
+    <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>Currency:</p>
+      <p>{bankDetails.currency}</p>
+    </div>
+  )}
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Account Name:</p>
-    <p>{company.bank.accountHolder}</p>
+    <p>{bankDetails.accountHolder}</p>
   </div>
+  {bankDetails.customerNumber && (
+    <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>Customer Number (CIF):</p>
+      <p>{bankDetails.customerNumber}</p>
+    </div>
+  )}
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Account Number:</p>
-    <p>{company.bank.accountNo}</p>
+    <p>{bankDetails.accountNo}</p>
   </div>
-  {company.bank.ifsc &&
+  {bankDetails.routingCode && (
+    <div className="summary-row">
+      <p style={{paddingRight:'5px'}}>Routing Code:</p>
+      <p>{bankDetails.routingCode}</p>
+    </div>
+  )}
+  {bankDetails.ifsc &&
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>IFSC:</p>
 
-     <p>{company.bank.ifsc}</p>
+     <p>{bankDetails.ifsc}</p>
   </div>
 }
 <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Swift:</p>
 
-     <p>{company.bank.swift}</p>
+     <p>{bankDetails.swift}</p>
   </div>
-  {company.bank.MICRCode &&
+  {bankDetails.swiftAlt && (
+  <div className="summary-row">
+    <p style={{paddingRight:'5px'}}>Swift (Alt):</p>
+     <p>{bankDetails.swiftAlt}</p>
+  </div>
+  )}
+  {bankDetails.MICRCode &&
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>MICR Code:</p>
 
-     <p>{company.bank.MICRCode}</p>
+     <p>{bankDetails.MICRCode}</p>
   </div>
 }
-{company.bank.IBAN &&
+{bankDetails.IBAN &&
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>IBAN:</p>
 
-     <p>{company.bank.IBAN}</p>
+     <p>{bankDetails.IBAN}</p>
   </div>
 }
-{company.bank.USDTAddress ?
+{bankDetails.USDTAddress ?
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>USDT Address:</p>
 
-     <p>{company.bank.USDTAddress}</p>
+     <p>{bankDetails.USDTAddress}</p>
   </div>
   :''
 }
   <div className="summary-row">
     <p style={{paddingRight:'5px'}}>Bank Address:</p>
 
-     <p>{company.bank.bankAddress}</p>
+     <p>{bankDetails.bankAddress}</p>
   </div>
   
                     </footer>
