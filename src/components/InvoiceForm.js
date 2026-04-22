@@ -642,7 +642,7 @@ const Invoice = () => {
                                 <p>Digitally signed by ABDULLA KHAN</p>
                                 <p>Date: {signatureDate || "Click 'Sign' to generate timestamp"}</p>
                             </div>
-                            {/* <img className='sign-logo' src={company.sign} /> */}
+                            <img className='sign-logo' src={company.sign} /> 
                             <p>Authorised Signatory</p>
                         </div>
                     </div>
