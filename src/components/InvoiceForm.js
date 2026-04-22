@@ -637,7 +637,7 @@ const Invoice = () => {
                         <div className='sign_div'>
                             <p>For {company.name}</p>
                             <div className='digital_sign'>
-                                // <div className='bg_image'></div>
+    {/* <div className='bg_image'></div> */}
                                 <h3>ABDULLA KHAN</h3>
                                 <p>Digitally signed by ABDULLA KHAN</p>
                                 <p>Date: {signatureDate || "Click 'Sign' to generate timestamp"}</p>
