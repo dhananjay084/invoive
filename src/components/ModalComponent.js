@@ -597,10 +597,7 @@
 
 // export default ModalComponent;
 
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-
-const data = [/* KEEP YOUR ORIGINAL DATA HERE */];
+import React, { useState } from "react";
 
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -609,56 +606,30 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     customerName: "",
     address1: "",
     address2: "",
-    address3:'',
     phone: "",
-    invoiceDate: "",
-    dueDate: "",
     clientGST: "",
+    panNo: "",
+    heading: '',
+    headingText: '',
     items: [],
     gstTax: "",
     igstTax: '',
     cgstTax: '',
     vatTax: '',
-    currency: "USD",
-    panNo: "",
-    heading:'',
-    headingText:''
+    currency: "USD"
   });
-
-  const [newItem, setNewItem] = useState({
-    description: "",
-    validatorPayout: "",
-    hsnSac: "",
-    amount: "",
-    validationNo: ""
-  });
-
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [currencies, setCurrencies] = useState({});
 
   const isDubaiInvoice = formData.invoicePrefix === "HM_26/27_";
-
-  useEffect(() => {
-    const fetchCurrencies = async () => {
-      try {
-        const res = await axios.get('https://open.er-api.com/v6/latest/USD');
-        setCurrencies({ USD: "$", INR: "₹", AED: "د.إ" });
-      } catch {
-        setCurrencies({ USD: "$", INR: "₹", AED: "د.إ" });
-      }
-    };
-    fetchCurrencies();
-  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleItemChange = (e) => {
-    setNewItem({ ...newItem, [e.target.name]: e.target.value });
-  };
-
-  const subtotal = formData.items.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0);
+  // ✅ TOTAL CALCULATION
+  const subtotal = formData.items.reduce(
+    (acc, item) => acc + (parseFloat(item.amount) || 0),
+    0
+  );
 
   let total = subtotal;
 
@@ -669,13 +640,30 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     const sgst = parseFloat(formData.gstTax || 0);
     const cgst = parseFloat(formData.cgstTax || 0);
     const igst = parseFloat(formData.igstTax || 0);
-    total = subtotal + (subtotal * sgst / 100) + (subtotal * cgst / 100) + (subtotal * igst / 100);
+
+    total =
+      subtotal +
+      (subtotal * sgst) / 100 +
+      (subtotal * cgst) / 100 +
+      (subtotal * igst) / 100;
   }
 
-  const currencySymbol = currencies[formData.currency] || "$";
-
   const handleSubmit = () => {
-    onSubmit({ ...formData, total });
+    const payload = { ...formData, total };
+
+    if (isDubaiInvoice) {
+      delete payload.gstTax;
+      delete payload.cgstTax;
+      delete payload.igstTax;
+      delete payload.panNo;
+      delete payload.heading;
+      delete payload.headingText;
+      delete payload.clientGST;
+    } else {
+      delete payload.vatTax;
+    }
+
+    onSubmit(payload);
     onClose();
   };
 
@@ -686,17 +674,20 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
       <div className="modal-content">
         <h2>Enter Invoice Details</h2>
 
-        {/* INVOICE PREFIX FIX */}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* INVOICE PREFIX */}
+        <div style={{ display: "flex", gap: 8 }}>
           <select
             value={formData.invoicePrefix}
             onChange={(e) => {
               const prefix = e.target.value;
-              const suffix = formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '');
+              const suffix = formData.invoiceNo.replace(
+                /^(OAM26-27GMO|HM_26\/27_)/,
+                ""
+              );
               setFormData({
                 ...formData,
                 invoicePrefix: prefix,
-                invoiceNo: `${prefix}${suffix}`
+                invoiceNo: `${prefix}${suffix}`,
               });
             }}
             style={{ width: 150 }}
@@ -707,12 +698,15 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
 
           <input
             name="invoiceNoSuffix"
-            value={formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '')}
+            value={formData.invoiceNo.replace(
+              /^(OAM26-27GMO|HM_26\/27_)/,
+              ""
+            )}
             onChange={(e) => {
-              const suffix = e.target.value.replace(/\D/g, '');
+              const suffix = e.target.value.replace(/\D/g, "");
               setFormData({
                 ...formData,
-                invoiceNo: `${formData.invoicePrefix}${suffix}`
+                invoiceNo: `${formData.invoicePrefix}${suffix}`,
               });
             }}
             placeholder="01"
@@ -721,16 +715,42 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         </div>
 
         <label>Customer Name:</label>
-        <input name="customerName" value={formData.customerName} onChange={handleChange} />
+        <input
+          name="customerName"
+          value={formData.customerName}
+          onChange={handleChange}
+        />
 
-        <label>Address:</label>
-        <input name="address1" value={formData.address1} onChange={handleChange} />
+        <label>Address Line 1:</label>
+        <input
+          name="address1"
+          value={formData.address1}
+          onChange={handleChange}
+        />
 
-        {/* ❌ REMOVE GST for Dubai */}
+        <label>Address Line 2:</label>
+        <input
+          name="address2"
+          value={formData.address2}
+          onChange={handleChange}
+        />
+
+        <label>PIN Code:</label>
+        <input
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+        />
+
+        {/* ❌ REMOVE GST FOR DUBAI */}
         {!isDubaiInvoice && (
           <>
             <label>GST No:</label>
-            <input name="clientGST" value={formData.clientGST} onChange={handleChange} />
+            <input
+              name="clientGST"
+              value={formData.clientGST}
+              onChange={handleChange}
+            />
           </>
         )}
 
@@ -738,7 +758,11 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         {!isDubaiInvoice && (
           <>
             <label>PAN No:</label>
-            <input name="panNo" value={formData.panNo} onChange={handleChange} />
+            <input
+              name="panNo"
+              value={formData.panNo}
+              onChange={handleChange}
+            />
           </>
         )}
 
@@ -746,16 +770,24 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         {!isDubaiInvoice && (
           <>
             <label>RO/PO:</label>
-            <input name="heading" value={formData.heading} onChange={handleChange} />
+            <input
+              name="heading"
+              value={formData.heading}
+              onChange={handleChange}
+            />
 
             <label>RO/PO Value:</label>
-            <input name="headingText" value={formData.headingText} onChange={handleChange} />
+            <input
+              name="headingText"
+              value={formData.headingText}
+              onChange={handleChange}
+            />
           </>
         )}
 
         <h3>Invoice Summary</h3>
 
-        {/* ✅ VAT ONLY */}
+        {/* ✅ VAT FOR DUBAI */}
         {isDubaiInvoice ? (
           <>
             <label>VAT (%):</label>
@@ -769,17 +801,31 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
         ) : (
           <>
             <label>S.G.S.T. (%):</label>
-            <input name="gstTax" value={formData.gstTax} onChange={handleChange} />
+            <input
+              name="gstTax"
+              value={formData.gstTax}
+              onChange={handleChange}
+            />
 
             <label>I.G.S.T. (%):</label>
-            <input name="igstTax" value={formData.igstTax} onChange={handleChange} />
+            <input
+              name="igstTax"
+              value={formData.igstTax}
+              onChange={handleChange}
+            />
 
             <label>C.G.S.T. (%):</label>
-            <input name="cgstTax" value={formData.cgstTax} onChange={handleChange} />
+            <input
+              name="cgstTax"
+              value={formData.cgstTax}
+              onChange={handleChange}
+            />
           </>
         )}
 
-        <p><strong>Total: {currencySymbol} {total.toFixed(2)}</strong></p>
+        <p>
+          <strong>Total: {total.toFixed(2)}</strong>
+        </p>
 
         <button onClick={handleSubmit}>Submit</button>
         <button onClick={onClose}>Close</button>
