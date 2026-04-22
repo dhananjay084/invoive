@@ -600,7 +600,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const data = [/* SAME DATA (unchanged) */];
+const data = [/* KEEP YOUR ORIGINAL DATA HERE */];
 
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -618,7 +618,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     gstTax: "",
     igstTax: '',
     cgstTax: '',
-    vatTax: '', // ✅ added
+    vatTax: '',
     currency: "USD",
     panNo: "",
     heading:'',
@@ -636,31 +636,17 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
   const [editingIndex, setEditingIndex] = useState(null);
   const [currencies, setCurrencies] = useState({});
 
-  const isDubaiInvoice = formData.invoicePrefix === "HM_26/27_"; // ✅
+  const isDubaiInvoice = formData.invoicePrefix === "HM_26/27_";
 
   useEffect(() => {
     const fetchCurrencies = async () => {
       try {
-        const response = await axios.get('https://open.er-api.com/v6/latest/USD');
-        const currencyData = response.data.rates;
-
-        const currencySymbols = {
-          USD: "$", EUR: "€", GBP: "£", INR: "₹", AED: "د.إ"
-        };
-
-        const availableCurrencies = {};
-        for (const [code, symbol] of Object.entries(currencySymbols)) {
-          if (currencyData[code]) {
-            availableCurrencies[code] = symbol;
-          }
-        }
-
-        setCurrencies(availableCurrencies);
+        const res = await axios.get('https://open.er-api.com/v6/latest/USD');
+        setCurrencies({ USD: "$", INR: "₹", AED: "د.إ" });
       } catch {
         setCurrencies({ USD: "$", INR: "₹", AED: "د.إ" });
       }
     };
-
     fetchCurrencies();
   }, []);
 
@@ -672,43 +658,7 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     setNewItem({ ...newItem, [e.target.name]: e.target.value });
   };
 
-  const addItem = () => {
-    if (!newItem.description || !newItem.validatorPayout || !newItem.amount) {
-      alert("Please fill all required item fields before adding.");
-      return;
-    }
-
-    const itemToAdd = {
-      ...newItem,
-      amount: parseFloat(newItem.amount),
-      hsnSac: newItem.hsnSac || "998361"
-    };
-
-    if (editingIndex !== null) {
-      const updated = [...formData.items];
-      updated[editingIndex] = itemToAdd;
-      setFormData({ ...formData, items: updated });
-      setEditingIndex(null);
-    } else {
-      setFormData({ ...formData, items: [...formData.items, itemToAdd] });
-    }
-
-    setNewItem({ description: "", validatorPayout: "", hsnSac: "", amount: "", validationNo: "" });
-  };
-
-  const editItem = (index) => {
-    const item = formData.items[index];
-    setNewItem({ ...item, amount: item.amount.toString() });
-    setEditingIndex(index);
-  };
-
-  const deleteItem = (index) => {
-    const updated = formData.items.filter((_, i) => i !== index);
-    setFormData({ ...formData, items: updated });
-  };
-
-  // ✅ UPDATED TOTAL LOGIC
-  const subtotal = formData.items.reduce((acc, item) => acc + parseFloat(item.amount), 0);
+  const subtotal = formData.items.reduce((acc, item) => acc + (parseFloat(item.amount) || 0), 0);
 
   let total = subtotal;
 
@@ -719,32 +669,13 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
     const sgst = parseFloat(formData.gstTax || 0);
     const cgst = parseFloat(formData.cgstTax || 0);
     const igst = parseFloat(formData.igstTax || 0);
-
-    total = subtotal 
-      + (subtotal * sgst / 100)
-      + (subtotal * cgst / 100)
-      + (subtotal * igst / 100);
+    total = subtotal + (subtotal * sgst / 100) + (subtotal * cgst / 100) + (subtotal * igst / 100);
   }
 
-  const currencySymbol = currencies[formData.currency] || formData.currency;
+  const currencySymbol = currencies[formData.currency] || "$";
 
   const handleSubmit = () => {
-    const payload = { 
-      ...formData, 
-      total,
-      currency: formData.currency,
-      currencySymbol
-    };
-
-    if (isDubaiInvoice) {
-      delete payload.gstTax;
-      delete payload.cgstTax;
-      delete payload.igstTax;
-    } else {
-      delete payload.vatTax;
-    }
-
-    onSubmit(payload);
+    onSubmit({ ...formData, total });
     onClose();
   };
 
@@ -755,100 +686,96 @@ const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
       <div className="modal-content">
         <h2>Enter Invoice Details</h2>
 
-        <label>Currency:</label>
-        <select name="currency" value={formData.currency} onChange={handleChange}>
-          {Object.entries(currencies).map(([code, symbol]) => (
-            <option key={code} value={code}>{code} ({symbol})</option>
-          ))}
-        </select>
-
-        <label>Invoice No:</label>
-        <div style={{ display: "flex", gap: "8px" }}>
-          <select 
+        {/* INVOICE PREFIX FIX */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <select
             value={formData.invoicePrefix}
             onChange={(e) => {
               const prefix = e.target.value;
               const suffix = formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '');
-              setFormData({ ...formData, invoicePrefix: prefix, invoiceNo: `${prefix}${suffix}` });
+              setFormData({
+                ...formData,
+                invoicePrefix: prefix,
+                invoiceNo: `${prefix}${suffix}`
+              });
             }}
+            style={{ width: 150 }}
           >
             <option value="OAM26-27GMO">OAM26-27GMO</option>
             <option value="HM_26/27_">HM_26/27_</option>
           </select>
 
           <input
+            name="invoiceNoSuffix"
             value={formData.invoiceNo.replace(/^(OAM26-27GMO|HM_26\/27_)/, '')}
             onChange={(e) => {
               const suffix = e.target.value.replace(/\D/g, '');
-              setFormData({ ...formData, invoiceNo: `${formData.invoicePrefix}${suffix}` });
+              setFormData({
+                ...formData,
+                invoiceNo: `${formData.invoicePrefix}${suffix}`
+              });
             }}
+            placeholder="01"
+            style={{ flex: 1 }}
           />
         </div>
 
         <label>Customer Name:</label>
-        <input
-          list="customerOptions"
-          name="customerName"
-          value={formData.customerName}
-          onChange={(e) => {
-            handleChange(e);
-            const selected = data.find(c => c.name.toLowerCase() === e.target.value.toLowerCase());
-            if (selected) {
-              setFormData(prev => ({
-                ...prev,
-                address1: selected.address1,
-                address2: selected.address2,
-                phone: selected.pincode,
-                clientGST: selected.gst,
-                panNo: selected.panNo
-              }));
-            }
-          }}
-        />
-        <datalist id="customerOptions">
-          {data.map((c, i) => <option key={i} value={c.name} />)}
-        </datalist>
+        <input name="customerName" value={formData.customerName} onChange={handleChange} />
 
-        <label>Address Line 1:</label>
+        <label>Address:</label>
         <input name="address1" value={formData.address1} onChange={handleChange} />
 
-        <label>Address Line 2:</label>
-        <input name="address2" value={formData.address2} onChange={handleChange} />
-
-        <label>PIN Code:</label>
-        <input name="phone" value={formData.phone} onChange={handleChange} />
-
-        {!isDubaiInvoice && ( // ✅ hide GST
+        {/* ❌ REMOVE GST for Dubai */}
+        {!isDubaiInvoice && (
           <>
             <label>GST No:</label>
             <input name="clientGST" value={formData.clientGST} onChange={handleChange} />
           </>
         )}
 
-        <h3>Add Items</h3>
-        <input name="description" value={newItem.description} onChange={handleItemChange} placeholder="Description" />
-        <input name="validatorPayout" value={newItem.validatorPayout} onChange={handleItemChange} placeholder="Payout" />
-        <input name="amount" value={newItem.amount} onChange={handleItemChange} placeholder="Amount" />
+        {/* ❌ REMOVE PAN */}
+        {!isDubaiInvoice && (
+          <>
+            <label>PAN No:</label>
+            <input name="panNo" value={formData.panNo} onChange={handleChange} />
+          </>
+        )}
 
-        <button onClick={addItem}>{editingIndex !== null ? "Update" : "Add"}</button>
+        {/* ❌ REMOVE RO/PO */}
+        {!isDubaiInvoice && (
+          <>
+            <label>RO/PO:</label>
+            <input name="heading" value={formData.heading} onChange={handleChange} />
+
+            <label>RO/PO Value:</label>
+            <input name="headingText" value={formData.headingText} onChange={handleChange} />
+          </>
+        )}
 
         <h3>Invoice Summary</h3>
 
+        {/* ✅ VAT ONLY */}
         {isDubaiInvoice ? (
           <>
             <label>VAT (%):</label>
-            <input name="vatTax" value={formData.vatTax} onChange={handleChange} />
+            <input
+              type="number"
+              name="vatTax"
+              value={formData.vatTax}
+              onChange={handleChange}
+            />
           </>
         ) : (
           <>
-            <label>SGST:</label>
+            <label>S.G.S.T. (%):</label>
             <input name="gstTax" value={formData.gstTax} onChange={handleChange} />
 
-            <label>CGST:</label>
-            <input name="cgstTax" value={formData.cgstTax} onChange={handleChange} />
-
-            <label>IGST:</label>
+            <label>I.G.S.T. (%):</label>
             <input name="igstTax" value={formData.igstTax} onChange={handleChange} />
+
+            <label>C.G.S.T. (%):</label>
+            <input name="cgstTax" value={formData.cgstTax} onChange={handleChange} />
           </>
         )}
 
