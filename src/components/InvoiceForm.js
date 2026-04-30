@@ -88,6 +88,7 @@ const hikeMediaBanks = {
 const Invoice = () => {
     const [selectedCompany, setSelectedCompany] = useState("OctaAds");
     const [selectedHikeBank, setSelectedHikeBank] = useState("WIO");
+    const [selectedOctaAdsAddress, setSelectedOctaAdsAddress] = useState("Gurugram");
     const [modalOpen, setModalOpen] = useState(false);
     const [signatureDate, setSignatureDate] = useState(null);
     const [invoiceData, setInvoiceData] = useState({
@@ -140,6 +141,26 @@ const Invoice = () => {
   ISK: "icelandic kronur"
 };
     const company = companyDetails[selectedCompany];
+    const octaAdsAddressOptions = {
+        Gurugram: {
+            address:
+                "Coworkkeys Building, Plot No. 38 Second Floor ,Saraswati Kunj ,Golf Course Road ,Sector 54 Gurugram, Haryana 122001",
+            gst: "06AAECO3028M1ZD"
+        },
+        Gomoh: {
+            address:
+                "1st Floor, -, C/O SIRAJ KHAN, LOCO BAZAR, Near Loco Bazar Masjid, Gomoh, Dhanbad, Jharkhand, 828401",
+            gst: "20AAECO3028M1ZN"
+        }
+    };
+    const displayCompanyAddress =
+        selectedCompany === "OctaAds"
+            ? octaAdsAddressOptions[selectedOctaAdsAddress]?.address || company.address
+            : company.address;
+    const displayCompanyGst =
+        selectedCompany === "OctaAds"
+            ? octaAdsAddressOptions[selectedOctaAdsAddress]?.gst || company.gst
+            : company.gst;
     const bankDetails =
         selectedCompany === "HikeMedia"
             ? hikeMediaBanks[selectedHikeBank] || hikeMediaBanks.WIO
@@ -160,6 +181,9 @@ const Invoice = () => {
         setSelectedCompany(nextCompany);
         if (nextCompany !== "HikeMedia") {
             setSelectedHikeBank("WIO");
+        }
+        if (nextCompany !== "OctaAds") {
+            setSelectedOctaAdsAddress("Gurugram");
         }
     };
 
@@ -404,6 +428,18 @@ const Invoice = () => {
                     <option value="OctaAds">OctaAds Media</option>
                     <option value="HikeMedia">Hike Media</option>
                 </select>
+                {selectedCompany === "OctaAds" && (
+                    <>
+                        <label style={{ marginLeft: 12 }}>Select Address: </label>
+                        <select
+                            value={selectedOctaAdsAddress}
+                            onChange={(e) => setSelectedOctaAdsAddress(e.target.value)}
+                        >
+                            <option value="Gurugram">Gurugram</option>
+                            <option value="Gomoh">Gomoh</option>
+                        </select>
+                    </>
+                )}
                 {selectedCompany === "HikeMedia" && (
                     <>
                         <label style={{ marginLeft: 12 }}>Select Bank: </label>
@@ -435,8 +471,8 @@ const Invoice = () => {
                     <header className="invoice-header">
                         <div className="logo">
                             <h2>{company.name}</h2>
-                            <p>{company.address}</p>
-                            {company.gst && <p>GST: {company.gst}</p>}
+                            <p>{displayCompanyAddress}</p>
+                            {displayCompanyGst && <p>GST: {displayCompanyGst}</p>}
                             {company.CIN && <p>CIN: {company.CIN}</p>}
                         </div>
                         {/* <div className="barcode">
