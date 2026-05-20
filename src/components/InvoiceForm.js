@@ -86,11 +86,46 @@ const hikeMediaBanks = {
 //     });
 // };
 const Invoice = () => {
+    const formatSignatureDisplay = (dateValue) => {
+        const date = new Date(dateValue);
+
+        if (Number.isNaN(date.getTime())) {
+            return "";
+        }
+
+        const formatter = new Intl.DateTimeFormat('en-IN', {
+            timeZone: 'Asia/Kolkata',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23'
+        });
+
+        const parts = formatter.formatToParts(date);
+        const day = parts.find(p => p.type === 'day').value;
+        const month = parts.find(p => p.type === 'month').value;
+        const year = parts.find(p => p.type === 'year').value;
+        const hours = parts.find(p => p.type === 'hour').value;
+        const minutes = parts.find(p => p.type === 'minute').value;
+
+        return `${day}-${month}-${year}, ${hours}:${minutes} IST`;
+    };
+
+    const getCurrentDateTimeInputValue = () => {
+        const now = new Date();
+        const offset = now.getTimezoneOffset();
+        const localDate = new Date(now.getTime() - offset * 60000);
+        return localDate.toISOString().slice(0, 16);
+    };
+
     const [selectedCompany, setSelectedCompany] = useState("OctaAds");
     const [selectedHikeBank, setSelectedHikeBank] = useState("WIO");
     const [selectedOctaAdsAddress, setSelectedOctaAdsAddress] = useState("Gurugram");
     const [modalOpen, setModalOpen] = useState(false);
     const [signatureDate, setSignatureDate] = useState(null);
+    const [signatureDateInput, setSignatureDateInput] = useState(getCurrentDateTimeInputValue());
     const [invoiceData, setInvoiceData] = useState({
         customerName: "",
         address1: "",
@@ -336,29 +371,9 @@ const Invoice = () => {
     };
     const {  roundOff, roundedTotal } = calculateTotalAmount();
     const handleSign = () => {
-        const now = new Date();
-    
-        // Convert to IST using Intl.DateTimeFormat
-        const formatter = new Intl.DateTimeFormat('en-IN', {
-            timeZone: 'Asia/Kolkata',
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            hourCycle: 'h23' // Ensures 24-hour format
-        });
-    
-        // Format date correctly
-        const parts = formatter.formatToParts(now);
-        const day = parts.find(p => p.type === 'day').value;
-        const month = parts.find(p => p.type === 'month').value;
-        const year = parts.find(p => p.type === 'year').value;
-        const hours = parts.find(p => p.type === 'hour').value;
-        const minutes = parts.find(p => p.type === 'minute').value;
-    
-        const formattedDate = `${day}-${month}-${year}, ${hours}:${minutes} IST`;
-    
+        const selectedDate = signatureDateInput || getCurrentDateTimeInputValue();
+        const formattedDate = formatSignatureDisplay(selectedDate);
+
         setSignatureDate(formattedDate);
     };
     
@@ -452,6 +467,12 @@ const Invoice = () => {
                 )}
                 <button onClick={() => setModalOpen(true)}>Add Values</button>
                 <button onClick={handleDownloadPDF} className="download-btn">Download Invoice</button>
+                <input
+                    type="datetime-local"
+                    value={signatureDateInput}
+                    onChange={(e) => setSignatureDateInput(e.target.value)}
+                    style={{ marginLeft: 12, marginRight: 8 }}
+                />
                 <button onClick={handleSign}>Sign</button>
 
 
