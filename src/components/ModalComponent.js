@@ -94,7 +94,14 @@ const data = [
 ];
 
 const ModalComponent = ({ isOpen, onClose, onSubmit }) => {
-  const invoicePrefixes = ["OAM26-27GMO", "HM_26/27_", "HM_25/26_", "HM_24/25_"];
+  const invoicePrefixes = [
+    "OAM26-27GMO",
+    "OAM25-26GMO",
+    "OAM24-25GMO",
+    "HM_26/27_",
+    "HM_25/26_",
+    "HM_24/25_",
+  ];
   const stripInvoicePrefix = (invoiceNo = "") => {
     const matchedPrefix = invoicePrefixes.find((prefix) => invoiceNo.startsWith(prefix));
     return matchedPrefix ? invoiceNo.slice(matchedPrefix.length) : invoiceNo;
