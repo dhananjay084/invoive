@@ -63,6 +63,30 @@ const hikeMediaBanks = {
         accountNo: "1015948206201",
         IBAN: "AE250260001015948206201"
     },
+    EmiratesNBD_EUR: {
+        name: "Emirates NBD Bank PJSC",
+        bankAddress: "Baniyas Road, Deira, P O Box 777, Dubai, UAE",
+        swift: "EBILAEADXXX",
+        swiftAlt: "EBILAEAD",
+        routingCode: "302620122",
+        customerNumber: "59482062",
+        accountHolder: "Hike Media LLC",
+        currency: "EUR",
+        accountNo: "1025948206202",
+        IBAN: "AE330260001025948206202"
+    },
+    EmiratesNBD_GBP: {
+        name: "Emirates NBD Bank PJSC",
+        bankAddress: "Baniyas Road, Deira, P O Box 777, Dubai, UAE",
+        swift: "EBILAEADXXX",
+        swiftAlt: "EBILAEAD",
+        routingCode: "302620122",
+        customerNumber: "59482062",
+        accountHolder: "Hike Media LLC",
+        currency: "GBP",
+        accountNo: "1025948206203",
+        IBAN: "AE060260001025948206203"
+    },
     EmiratesNBD_USD: {
         name: "Emirates NBD Bank PJSC",
         bankAddress: "Baniyas Road, Deira, P O Box 777, Dubai, UAE",
@@ -461,6 +485,8 @@ const Invoice = () => {
                         <select value={selectedHikeBank} onChange={(e) => setSelectedHikeBank(e.target.value)}>
                             <option value="WIO">WIO Bank</option>
                             <option value="EmiratesNBD_AED">Emirates NBD (AED)</option>
+                            <option value="EmiratesNBD_EUR">Emirates NBD (EUR)</option>
+                            <option value="EmiratesNBD_GBP">Emirates NBD (GBP)</option>
                             <option value="EmiratesNBD_USD">Emirates NBD (USD)</option>
                         </select>
                     </>
